@@ -1,0 +1,3 @@
+C:\Users\Admin\Desktop\واجيت\wADJET\artifacts\wadjet-grc:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @workspace/wadjet-grc@0.0.0 dev: `vite --config vite.config.ts --host 0.0.0.0`
+Exit status 1

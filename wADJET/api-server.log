@@ -1,0 +1,179 @@
+[13:18:47.696] [32mINFO[39m (34800): [36mDatabase seeded[39m
+    [35mcount[39m: 48
+[13:18:47.696] [32mINFO[39m (34800): [36mDatabase ready[39m
+[13:18:47.698] [32mINFO[39m (34800): [36mServer listening[39m
+    [35mport[39m: 5000
+[13:19:18.483] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[13:19:30.756] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 2,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[13:19:34.103] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 3,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[13:20:35.009] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 4,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[13:20:35.013] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 5,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 0
+[13:21:14.529] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 6,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 0
+[13:21:14.533] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 7,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[13:22:32.992] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 8,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 0
+[13:22:33.299] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 9,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 0
+[13:23:01.568] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 10,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[13:23:01.830] [32mINFO[39m (34800): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 11,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+$ set NODE_ENV=development && pnpm run build && pnpm run start
+$ node ./build.mjs
+
+  dist\index.mjs                   3.2mb
+  dist\pino-worker.mjs           153.5kb
+  dist\pino-file.mjs             142.1kb
+  dist\pino-pretty.mjs           114.6kb
+  dist\thread-stream-worker.mjs    7.3kb
+  ...and 5 more output files...
+
+Done in 206ms
+$ node --enable-source-maps ./dist/index.mjs
+[13:23:59.719] [32mINFO[39m (33912): [36mDatabase seeded[39m
+    [35mcount[39m: 48
+[13:23:59.719] [32mINFO[39m (33912): [36mDatabase ready[39m
+[13:23:59.721] [32mINFO[39m (33912): [36mServer listening[39m
+    [35mport[39m: 5000
+[13:24:05.283] [32mINFO[39m (33912): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3
+[13:25:22.541] [32mINFO[39m (33912): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 2,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+$ set NODE_ENV=development && pnpm run build && pnpm run start
+$ node ./build.mjs
+
+  dist\index.mjs                   3.2mb
+  dist\pino-worker.mjs           153.5kb
+  dist\pino-file.mjs             142.1kb
+  dist\pino-pretty.mjs           114.6kb
+  dist\thread-stream-worker.mjs    7.3kb
+  ...and 5 more output files...
+
+Done in 215ms
+$ node --enable-source-maps ./dist/index.mjs
+[13:26:43.706] [32mINFO[39m (26256): [36mDatabase seeded[39m
+    [35mcount[39m: 48
+[13:26:43.706] [32mINFO[39m (26256): [36mDatabase ready[39m
+[13:26:43.708] [32mINFO[39m (26256): [36mServer listening[39m
+    [35mport[39m: 5000
+[13:27:01.738] [32mINFO[39m (26256): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/risks"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3

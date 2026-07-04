@@ -2,6 +2,12 @@ import { KriMeasurement, KriCatalog, BreachTask } from "@workspace/db";
 import { logger } from "../lib/logger";
 import { buildBreachAlert, buildEscalationAlert, sendNotification } from "./notification-service";
 
+const ESCALATION_MATRIX = {
+  cyber:        { l1_hours: 1,  l2_hours: 4,  notify_cbe_hours: 24 },
+  operational:  { l1_hours: 24, l2_hours: 72, notify_cbe_hours: 72 },
+  compliance:   { l1_hours: 48, l2_hours: 120, notify_cbe_hours: 168 },
+};
+
 function createDueDate(hoursFromNow: number): string {
   return new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString();
 }
@@ -30,17 +36,27 @@ export async function handleMeasurementApproved(
   }
 }
 
+function deriveBreachType(riskCategory: string): "cyber" | "operational" | "compliance" {
+  const cat = (riskCategory || "").toLowerCase();
+  if (cat.includes("cyber") || cat.includes("security") || cat.includes("information")) return "cyber";
+  if (cat.includes("compliance") || cat.includes("legal") || cat.includes("aml")) return "compliance";
+  return "operational";
+}
+
 async function createBreachTask(meas: any): Promise<void> {
   const catalogs = await KriCatalog.find({ _id: meas.catalogId } as any).lean();
   const cat = catalogs[0];
   if (!cat) return;
   const existing = await BreachTask.find({ kriMeasurementId: meas._id } as any).lean();
   if (existing.length > 0) return;
-  const dueDate = createDueDate(48);
+  const breachType = deriveBreachType(cat.riskCategory);
+  const sla = ESCALATION_MATRIX[breachType];
+  const dueDate = createDueDate(sla.l1_hours);
   const task = await BreachTask.create({
     kriMeasurementId: meas._id ?? "",
     kriCatalogId: meas.catalogId,
     riskOwnerId: cat.riskOwnerId,
+    breachType,
     escalationLevel: "Level0_Owner",
     title: `Remediation: ${cat.name} breached risk appetite`,
     description: `KRI ${cat.code} (${cat.name}) entered Red zone with value ${meas.currentValue}. Immediate remediation required.`,
@@ -50,7 +66,7 @@ async function createBreachTask(meas: any): Promise<void> {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
-  logger.info({ taskId: task._id, kriCode: cat.code, dueDate }, "Breach remediation task created");
+  logger.info({ taskId: task._id, kriCode: cat.code, dueDate, breachType }, "Breach remediation task created");
   try {
     const vars = {
       metricCode: cat.code,
@@ -77,11 +93,13 @@ export async function runEscalationCheck(): Promise<void> {
   for (const task of tasks) {
     try {
       if (task.status === "Resolved") continue;
+      const bType: string = task.breachType || "operational";
+      const sla = ESCALATION_MATRIX[bType as keyof typeof ESCALATION_MATRIX] ?? ESCALATION_MATRIX.operational;
       const overdueHours = getOverdueHours(task.dueBy);
       if (overdueHours <= 0) continue;
-      if (overdueHours >= 72 && task.escalationLevel !== "Level2_CRO_CEO") {
+      if (overdueHours >= sla.l2_hours && task.escalationLevel !== "Level2_CRO_CEO") {
         await escalateToLevel2(task);
-      } else if (overdueHours >= 48 && task.escalationLevel === "Level0_Owner") {
+      } else if (overdueHours >= sla.l1_hours && task.escalationLevel === "Level0_Owner") {
         await escalateToLevel1(task);
       }
     } catch (err) {
@@ -96,6 +114,8 @@ async function escalateToLevel1(task: any): Promise<void> {
     level1EscalatedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+  const bType: string = task.breachType || "operational";
+  const sla = ESCALATION_MATRIX[bType as keyof typeof ESCALATION_MATRIX] ?? ESCALATION_MATRIX.operational;
   logger.info({ taskId: task._id }, "Escalated to Level 1 — Department Head");
   try {
     const vars = {
@@ -105,7 +125,7 @@ async function escalateToLevel1(task: any): Promise<void> {
       level: "1",
       overdueHours: String(Math.round(getOverdueHours(task.dueBy))),
       dueDate: task.dueBy,
-      escalationMessage: "This task has exceeded the 48-hour SLA. The Department Head has been notified and must intervene.",
+      escalationMessage: `This ${bType} breach has exceeded the ${sla.l1_hours}-hour SLA. The Department Head has been notified and must intervene.`,
       recipientType: "DeptHead",
       recipientAddress: `${task.deptHeadId ?? "dept-head"}@bank.eg`,
     };
@@ -122,6 +142,8 @@ async function escalateToLevel2(task: any): Promise<void> {
     level2EscalatedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+  const bType: string = task.breachType || "operational";
+  const sla = ESCALATION_MATRIX[bType as keyof typeof ESCALATION_MATRIX] ?? ESCALATION_MATRIX.operational;
   logger.info({ taskId: task._id }, "Escalated to Level 2 — CRO/CEO");
   try {
     const vars = {
@@ -131,7 +153,7 @@ async function escalateToLevel2(task: any): Promise<void> {
       level: "2",
       overdueHours: String(Math.round(getOverdueHours(task.dueBy))),
       dueDate: task.dueBy,
-      escalationMessage: "CRITICAL: This task has exceeded the 72-hour SLA. CRO and CEO have been notified for executive intervention.",
+      escalationMessage: `CRITICAL: This ${bType} breach has exceeded the ${sla.l2_hours}-hour SLA. CRO and CEO have been notified for executive intervention.`,
       recipientType: "CRO",
       recipientAddress: "cro@bank.eg",
     };

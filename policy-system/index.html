@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Policy Management</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f0f2f5;color:#1a1a2e}
+.app{max-width:1440px;margin:0 auto;padding:20px}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:20px 28px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header h1{font-size:24px;font-weight:700}
+.header h1 span{color:#e9b84c}
+.header .sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
+.badge{background:rgba(233,184,76,0.15);color:#e9b84c;padding:6px 14px;border-radius:20px;font-size:11px;white-space:nowrap}
+.tabs{display:flex;gap:2px;background:#e0e3e8;padding:3px;border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:10px 16px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;color:#5a5a7a;background:transparent;border:none;white-space:nowrap}
+.tab:hover{background:rgba(255,255,255,0.6);color:#1a1a2e}
+.tab.active{background:#fff;color:#1a1a2e;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.tab .count{background:#e9b84c;color:#1a1a2e;padding:1px 7px;border-radius:10px;font-size:9px;margin-left:4px;font-weight:700}
+.sheet{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;display:none}
+.sheet.active{display:block}
+.sheet-header{padding:16px 22px;border-bottom:1px solid #e8eaee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.sheet-header h2{font-size:15px;font-weight:700}
+.sheet-header h2 small{font-weight:400;font-size:11px;color:#8a8aaa;margin-left:8px}
+.sheet-body{padding:16px 22px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#f7f8fa;color:#5a5a7a;font-weight:600;text-align:left;padding:9px 10px;border-bottom:2px solid #e8eaee;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:8px 10px;border-bottom:1px solid #f0f1f4;color:#2a2a4a;vertical-align:middle}
+tbody tr:hover{background:#fafbfc}
+tbody tr.overdue{background:#fff5f5}
+.status{display:inline-block;padding:2px 9px;border-radius:12px;font-size:9px;font-weight:600;letter-spacing:.3px}
+.st-draft{background:#e8eaee;color:#5a5a7a}
+.st-review{background:#fff3cd;color:#856404}
+.st-approve{background:#d4edda;color:#155724}
+.st-published{background:#cce5ff;color:#004085}
+.st-archived{background:#e2e3e5;color:#383d41}
+.st-rejected{background:#f8d7da;color:#721c24}
+.st-open{background:#f8d7da;color:#721c24}
+.st-closed{background:#d4edda;color:#155724}
+.st-progress{background:#fff3cd;color:#856404}
+.st-green{background:#d4edda;color:#155724}
+.st-amber{background:#fff3cd;color:#856404}
+.st-red{background:#f8d7da;color:#721c24}
+.btn{padding:6px 14px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.btn-primary{background:#1a1a2e;color:#fff}
+.btn-primary:hover{background:#2a2a4e}
+.btn-gold{background:#e9b84c;color:#1a1a2e}
+.btn-gold:hover{background:#d4a832}
+.btn-outline{background:transparent;border:1px solid #d0d3da;color:#5a5a7a}
+.btn-outline:hover{background:#f7f8fa}
+.btn-sm{padding:4px 9px;font-size:9px}
+.btn-danger{background:#dc3545;color:#fff}
+.btn-danger:hover{background:#c82333}
+.btn-success{background:#28a745;color:#fff}
+.btn-success:hover{background:#218838}
+.btn+.btn{margin-left:4px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column}
+.form-group label{font-size:10px;font-weight:600;color:#5a5a7a;margin-bottom:3px}
+.form-group input,.form-group select,.form-group textarea{padding:7px 10px;border:1px solid #d0d3da;border-radius:6px;font-size:11px;background:#fafbfc;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#e9b84c;box-shadow:0 0 0 3px rgba(233,184,76,0.15);background:#fff}
+.form-group textarea{resize:vertical;min-height:50px}
+.form-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #e8eaee}
+.search-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:6px 10px;border:1px solid #d0d3da;border-radius:6px;font-size:11px;background:#fafbfc}
+.search-bar input:focus{outline:none;border-color:#e9b84c}
+.search-bar input{flex:1;min-width:160px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:90%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-header{padding:16px 22px;border-bottom:1px solid #e8eaee;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#8a8aaa;padding:4px;line-height:1}
+.modal-body{padding:22px}
+.modal-footer{padding:12px 22px;border-top:1px solid #e8eaee;display:flex;justify-content:flex-end;gap:8px}
+.alert{padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:11px;display:flex;align-items:center;gap:8px;line-height:1.4}
+.alert-danger{background:#fff5f5;border:1px solid #f8d7da;color:#721c24}
+.alert-warning{background:#fffcf0;border:1px solid #fff3cd;color:#856404}
+.alert-info{background:#f0f7ff;border:1px solid #cce5ff;color:#004085}
+.alert-success{background:#f0faf0;border:1px solid #d4edda;color:#155724}
+.approval-chain{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:10px;margin:6px 0}
+.approval-step{display:flex;align-items:center;gap:3px;padding:3px 8px;border-radius:5px;background:#f7f8fa;font-size:9px}
+.approval-step.done{background:#d4edda}
+.approval-step.current{background:#fff3cd;border:1px solid #e9b84c}
+.approval-step.pending{background:#f7f8fa;opacity:.5}
+.timeline{position:relative;padding-left:22px}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:#e8eaee}
+.timeline-item{position:relative;margin-bottom:12px}
+.timeline-item::before{content:'';position:absolute;left:-18px;top:4px;width:10px;height:10px;border-radius:50%;background:#e9b84c;border:2px solid #fff;box-shadow:0 0 0 2px #e9b84c}
+.timeline-item .t-time{font-size:9px;color:#8a8aaa}
+.timeline-item .t-title{font-weight:600;font-size:11px}
+.timeline-item .t-desc{font-size:10px;color:#5a5a7a}
+.version{font-family:monospace;font-weight:700;padding:1px 7px;border-radius:4px;background:#f0f1f4;font-size:10px}
+.text-muted{color:#8a8aaa}
+.text-xs{font-size:9px}
+.font-mono{font-family:Consolas,monospace}
+.flex{display:flex}.gap-2{gap:6px}
+.empty{text-align:center;padding:28px 20px;color:#8a8aaa}
+.empty p{font-size:12px}
+.flag{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:3px;font-size:8px;font-weight:600}
+.flag-red{background:#f8d7da;color:#721c24}
+@media(max-width:768px){
+  .app{padding:10px}
+  .header{flex-direction:column;text-align:center}
+  .tab{padding:7px 10px;font-size:9px}
+  .form-row{grid-template-columns:1fr}
+  .search-bar input{min-width:120px}
+  thead th,tbody td{padding:5px 6px;font-size:9px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <div>
+      <h1>Policy <span>Management</span></h1>
+      <div class="sub">Full Lifecycle · Approval Workflow · Version Control · Audit · Acknowledgment</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span class="badge" id="sysBadge" title="Storage status">⏺ Loading...</span>
+      <button class="btn btn-outline" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.12);padding:4px 10px;font-size:9px;" onclick="exportData()">📥</button>
+    </div>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="repo">📋 Repository <span class="count" id="cRepo">0</span></button>
+    <button class="tab" data-tab="wf">✅ Approvals <span class="count" id="cWf">0</span></button>
+    <button class="tab" data-tab="ver">📜 Versions <span class="count" id="cVer">0</span></button>
+    <button class="tab" data-tab="ctrl">🔒 Controls <span class="count" id="cCtrl">0</span></button>
+    <button class="tab" data-tab="risk">⚠️ Risks <span class="count" id="cRisk">0</span></button>
+    <button class="tab" data-tab="reg">📜 Regs <span class="count" id="cReg">0</span></button>
+    <button class="tab" data-tab="audit">🔍 Audit <span class="count" id="cAudit">0</span></button>
+    <button class="tab" data-tab="ack">👥 Ack <span class="count" id="cAck">0</span></button>
+  </div>
+
+  <!-- ============ REPOSITORY ============ -->
+  <div class="sheet active" id="s-repo">
+    <div class="sheet-header">
+      <h2>Policy Repository <small>All policies</small></h2>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline" onclick="openImport()">📥 Import CSV</button>
+        <button class="btn btn-primary" onclick="openCreate()">+ New Policy</button>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar">
+        <input type="text" id="repoQ" placeholder="Search ID, name, owner..." oninput="renderRepo()">
+        <select id="repoF" onchange="renderRepo()">
+          <option value="">All Statuses</option>
+          <option>Draft</option><option>Under Review</option><option>Approved</option><option>Published</option><option>Archived</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="resetAllData()" title="Delete all data and reset">🔄 Reset</button>
+      </div>
+      <table><thead><tr>
+        <th>ID</th><th>Policy Name</th><th>v</th><th>Owner</th><th>Dept</th><th>Status</th><th>Updated</th><th></th>
+      </tr></thead><tbody id="repoB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ APPROVALS ============ -->
+  <div class="sheet" id="s-wf">
+    <div class="sheet-header">
+      <h2>Approval Workflow <small>Author → Reviewer → Legal → CISO</small></h2>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar">
+        <input type="text" id="wfQ" placeholder="Search..." oninput="renderWf()">
+        <select id="wfF" onchange="renderWf()">
+          <option value="">All</option><option>Pending</option><option>In Progress</option><option>Approved</option><option>Rejected</option>
+        </select>
+      </div>
+      <table><thead><tr>
+        <th>Policy</th><th>Chain</th><th>Status</th><th>Assigned</th><th>Last Action</th><th></th>
+      </tr></thead><tbody id="wfB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ VERSIONS ============ -->
+  <div class="sheet" id="s-ver">
+    <div class="sheet-header">
+      <h2>Version History <small>Every change tracked</small></h2>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar">
+        <input type="text" id="verQ" placeholder="Search by policy ID, version, comment..." oninput="renderVer()">
+      </div>
+      <table><thead><tr>
+        <th>Policy</th><th>Name</th><th>Version</th><th>Change</th><th>By</th><th>Date</th><th>Comment</th>
+      </tr></thead><tbody id="verB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="sheet" id="s-ctrl">
+    <div class="sheet-header">
+      <h2>Controls Mapping <small>Policy → Control</small></h2>
+      <button class="btn btn-primary" onclick="openCtrl()">+ Map</button>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar"><input type="text" id="ctrlQ" placeholder="Search..." oninput="renderCtrl()"></div>
+      <table><thead><tr>
+        <th>Map ID</th><th>Policy</th><th>Control ID</th><th>Control Name</th><th>Frequency</th><th></th>
+      </tr></thead><tbody id="ctrlB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ RISKS ============ -->
+  <div class="sheet" id="s-risk">
+    <div class="sheet-header">
+      <h2>Risk Mapping <small>Policy → Risk</small></h2>
+      <button class="btn btn-primary" onclick="openRisk()">+ Map</button>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar"><input type="text" id="riskQ" placeholder="Search..." oninput="renderRisk()"></div>
+      <table><thead><tr>
+        <th>Map ID</th><th>Policy</th><th>Risk ID</th><th>Risk Description</th><th>Severity</th><th></th>
+      </tr></thead><tbody id="riskB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ REGULATIONS ============ -->
+  <div class="sheet" id="s-reg">
+    <div class="sheet-header">
+      <h2>Regulations Mapping <small>Policy → Framework</small></h2>
+      <button class="btn btn-primary" onclick="openReg()">+ Map</button>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar"><input type="text" id="regQ" placeholder="Search..." oninput="renderReg()"></div>
+      <table><thead><tr>
+        <th>Map ID</th><th>Policy</th><th>Framework</th><th>Article</th><th>Status</th><th></th>
+      </tr></thead><tbody id="regB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ AUDIT ============ -->
+  <div class="sheet" id="s-audit">
+    <div class="sheet-header">
+      <h2>Audit Findings <small>Findings linked to policies</small></h2>
+      <div>
+        <button class="btn btn-primary" onclick="openAudit()">+ Finding</button>
+        <button class="btn btn-outline" onclick="scanAudit()">🔍 Scan</button>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div id="auditAlertB"></div>
+      <div class="search-bar">
+        <input type="text" id="auditQ" placeholder="Search..." oninput="renderAudit()">
+        <select id="auditSevF" onchange="renderAudit()">
+          <option value="">All Severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <select id="auditStatF" onchange="renderAudit()">
+          <option value="">All Statuses</option><option>Open</option><option>In Progress</option><option>Closed</option>
+        </select>
+      </div>
+      <table><thead><tr>
+        <th>Finding ID</th><th>Policy</th><th>Finding</th><th>Severity</th><th>Status</th><th>Detected</th><th>Due</th><th></th>
+      </tr></thead><tbody id="auditB"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ============ ACKNOWLEDGMENT ============ -->
+  <div class="sheet" id="s-ack">
+    <div class="sheet-header">
+      <h2>Employee Acknowledgment <small>Read & accept tracking</small></h2>
+      <button class="btn btn-primary" onclick="openAck()">+ Record</button>
+    </div>
+    <div class="sheet-body">
+      <div class="search-bar">
+        <input type="text" id="ackQ" placeholder="Search..." oninput="renderAck()">
+        <select id="ackF" onchange="renderAck()">
+          <option value="">All</option><option>Accepted</option><option>Pending</option>
+        </select>
+      </div>
+      <table><thead><tr>
+        <th>Policy</th><th>Employee</th><th>Department</th><th>Status</th><th>Accepted Date</th>
+      </tr></thead><tbody id="ackB"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-overlay" id="mCreate"><div class="modal">
+  <div class="modal-header"><h3>Create New Policy</h3><button class="modal-close" onclick="closeM('mCreate')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy Name *</label><input type="text" id="cName" placeholder="e.g. Access Control Policy"></div>
+      <div class="form-group"><label>Owner *</label><input type="text" id="cOwner" placeholder="e.g. John Smith"></div>
+      <div class="form-group"><label>Department</label><select id="cDept"><option>IT Security</option><option>Legal</option><option>HR</option><option>Finance</option><option>Operations</option><option>Compliance</option><option>Risk Management</option></select></div>
+      <div class="form-group"><label>Initial Status</label><select id="cStat"><option value="Draft">Draft</option><option value="Under Review">Under Review</option></select></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="cDesc" rows="3" placeholder="Policy purpose and scope..."></textarea></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline" onclick="closeM('mCreate')">Cancel</button>
+    <button class="btn btn-primary" onclick="createPolicy()">Create Policy</button>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="mEdit"><div class="modal">
+  <div class="modal-header"><h3>Edit Policy <span id="eLabel" style="color:#8a8aaa;font-weight:400;"></span></h3><button class="modal-close" onclick="closeM('mEdit')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy Name *</label><input type="text" id="eName"></div>
+      <div class="form-group"><label>Owner *</label><input type="text" id="eOwner"></div>
+      <div class="form-group"><label>Department</label><select id="eDept"><option>IT Security</option><option>Legal</option><option>HR</option><option>Finance</option><option>Operations</option><option>Compliance</option><option>Risk Management</option></select></div>
+      <div class="form-group"><label>Status</label><select id="eStat"><option>Draft</option><option>Under Review</option><option>Approved</option><option>Published</option><option>Archived</option></select></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="eDesc" rows="3"></textarea></div>
+    <div class="form-group" style="margin-top:8px"><label>Change Comment (creates new version)</label><input type="text" id="eComment" placeholder="e.g. Updated scope and owner"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline" onclick="closeM('mEdit')">Cancel</button>
+    <button class="btn btn-gold" onclick="saveEdit()">💾 Save Changes</button>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="mImport"><div class="modal" style="max-width:560px">
+  <div class="modal-header"><h3>Import Policies from CSV</h3><button class="modal-close" onclick="closeM('mImport')">✕</button></div>
+  <div class="modal-body">
+    <p style="font-size:11px;margin-bottom:8px;color:#5a5a7a">Paste CSV rows (one per line): <code>name, owner, dept, status, description</code></p>
+    <div class="form-group"><label>CSV Data *</label><textarea id="csvInput" rows="8" style="font-family:Consolas,monospace;font-size:11px" placeholder="Access Control Policy, John Smith, IT Security, Draft, Controls user access
+Data Protection Policy, Sarah Johnson, Legal, Published, Data protection
+..."></textarea></div>
+    <div class="form-group" style="margin-top:6px"><label>Delimiter</label>
+      <select id="csvDelim" style="max-width:80px"><option value=",">Comma</option><option value=";">Semicolon</option><option value="\t">Tab</option></select>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline" onclick="closeM('mImport')">Cancel</button>
+    <button class="btn btn-gold" onclick="importCSV()">📥 Import</button>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="mApproval"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3 id="mApprovalTitle">Approval Action</h3><button class="modal-close" onclick="closeM('mApproval')">✕</button></div>
+  <div class="modal-body">
+    <p style="font-size:12px;margin-bottom:10px;" id="mApprovalInfo"></p>
+    <div class="form-group"><label>Decision *</label><select id="mApprovalDec"><option value="Approve">✅ Approve</option><option value="Reject">❌ Reject</option></select></div>
+    <div class="form-group" style="margin-top:8px"><label>Comment</label><textarea id="mApprovalComment" rows="3" placeholder="Optional..."></textarea></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline" onclick="closeM('mApproval')">Cancel</button>
+    <button class="btn btn-primary" onclick="submitApproval()">Submit Decision</button>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="mCtrl"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3>Map Control</h3><button class="modal-close" onclick="closeM('mCtrl')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy *</label><select id="mCtrlPol"></select></div>
+      <div class="form-group"><label>Control Name *</label><input type="text" id="mCtrlName" placeholder="e.g. Quarterly Access Review"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Control ID</label><input type="text" id="mCtrlId" readonly style="background:#f0f1f4;font-family:monospace"></div>
+      <div class="form-group"><label>Frequency</label><select id="mCtrlFreq"><option>Monthly</option><option>Quarterly</option><option>Semi-Annual</option><option>Annual</option></select></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeM('mCtrl')">Cancel</button><button class="btn btn-primary" onclick="saveCtrl()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="mRisk"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3>Map Risk</h3><button class="modal-close" onclick="closeM('mRisk')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy *</label><select id="mRiskPol"></select></div>
+      <div class="form-group"><label>Risk Description *</label><input type="text" id="mRiskDesc" placeholder="e.g. Excessive access"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Risk ID</label><input type="text" id="mRiskId" readonly style="background:#f0f1f4;font-family:monospace"></div>
+      <div class="form-group"><label>Severity</label><select id="mRiskSev"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeM('mRisk')">Cancel</button><button class="btn btn-primary" onclick="saveRisk()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="mReg"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3>Map Regulation</h3><button class="modal-close" onclick="closeM('mReg')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy *</label><select id="mRegPol"></select></div>
+      <div class="form-group"><label>Framework *</label><select id="mRegFw"><option>ISO 27001</option><option>NCA</option><option>PCI DSS</option><option>SOC 2</option><option>GDPR</option><option>NIST CSF</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Article / Clause</label><input type="text" id="mRegArt" placeholder="e.g. A.9.1.2"></div>
+      <div class="form-group"><label>Status</label><select id="mRegStat"><option>Compliant</option><option>Partially Compliant</option><option>Non-Compliant</option><option>Not Assessed</option></select></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeM('mReg')">Cancel</button><button class="btn btn-primary" onclick="saveReg()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="mAudit"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3>New Audit Finding</h3><button class="modal-close" onclick="closeM('mAudit')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy *</label><select id="mAuditPol"></select></div>
+      <div class="form-group"><label>Severity</label><select id="mAuditSev"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+    </div>
+    <div class="form-group"><label>Finding *</label><textarea id="mAuditDesc" rows="3" placeholder="Describe finding..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Due Date *</label><input type="date" id="mAuditDue"></div>
+      <div class="form-group"><label>Status</label><select id="mAuditStat"><option>Open</option><option>In Progress</option><option>Closed</option></select></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeM('mAudit')">Cancel</button><button class="btn btn-primary" onclick="saveAudit()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="mAck"><div class="modal" style="max-width:480px">
+  <div class="modal-header"><h3>Record Acknowledgment</h3><button class="modal-close" onclick="closeM('mAck')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group"><label>Policy *</label><select id="mAckPol"></select></div>
+      <div class="form-group"><label>Employee *</label><input type="text" id="mAckEmp" placeholder="e.g. Sarah Johnson"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Department</label><select id="mAckDept"><option>IT Security</option><option>Legal</option><option>HR</option><option>Finance</option><option>Operations</option><option>Compliance</option><option>Risk Management</option><option>Engineering</option></select></div>
+      <div class="form-group"><label>Status</label><select id="mAckStat"><option>Accepted</option><option>Pending</option></select></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeM('mAck')">Cancel</button><button class="btn btn-primary" onclick="saveAck()">Record</button></div>
+</div></div>
+
+<script>
+// ======== DATA LAYER ========
+let D = { policies:[], versions:[], workflow:[], controls:[], risks:[], regs:[], audits:[], acks:[] }
+let STORAGE_KEY = 'polman-data'
+let USE_STORAGE = true
+const today = () => new Date().toISOString().slice(0,10)
+const timeStr = () => new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+const pid = i => 'POL-'+String(i).padStart(3,'0')
+const cid = i => 'CTRL-'+String(i).padStart(3,'0')
+const rid = i => 'RISK-'+String(i).padStart(3,'0')
+const regMapId = i => 'REG-'+String(i).padStart(3,'0')
+const fid = i => 'FIND-'+String(i).padStart(3,'0')
+const daysAgo = n => { let d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10) }
+
+function badge(t, c) {
+  const b = document.getElementById('sysBadge')
+  b.textContent = t
+  if(c) b.style.background = c.bg; b.style.color = c.fg
+}
+
+function alertMsg(msg, type) {
+  const c = document.getElementById('alertBox')
+  c.innerHTML = `<div class="alert alert-${type}">${msg}</div>`
+  setTimeout(()=>{ if(c.innerHTML.includes(msg.slice(0,20))) c.innerHTML='' }, 8000)
+}
+
+function save() {
+  if (!USE_STORAGE) return
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(D))
+    const n = D.policies.length
+    badge(`💾 ${n} policy${n!==1?'ies':'y'} · saved ${timeStr()}`, {bg:'rgba(233,184,76,0.15)',fg:'#e9b84c'})
+  } catch(e) {
+    console.error('Save failed:', e)
+    badge('⚠️ Storage unavailable', {bg:'rgba(220,53,69,0.15)',fg:'#dc3545'})
+  }
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const p = JSON.parse(raw)
+      if (p && p.policies && p.policies.length) {
+        D = p
+        USE_STORAGE = true
+        const n = D.policies.length
+        badge(`💾 ${n} policy${n!==1?'ies':'y'} · loaded ${timeStr()}`, {bg:'rgba(233,184,76,0.15)',fg:'#e9b84c'})
+        return
+      }
+    }
+  } catch(e) { console.warn('Load failed:', e) }
+  // No data → seed
+  seed()
+}
+
+function seed() {
+  const pols = [
+    {id:pid(1),name:'Access Control Policy',ver:'v2.1',owner:'John Smith',dept:'IT Security',status:'Published',desc:'Controls user access to systems',updated:daysAgo(5),content:`INFORMATION SECURITY MANAGEMENT SYSTEM (ISMS) - Access Control Policy
+Document Code: BK-ISMS-POL-04 | Version: 1.7 | Confidential
+
+1. PURPOSE & SCOPE
+This policy defines the mandatory requirements for establishing, implementing, and maintaining access controls within [The Bank]. The primary objective is to prevent unauthorized access to banking information assets, infrastructure, and the Customer Data Environment (CDE), while adopting Zero Trust principles and Defense-in-Depth strategies.
+
+2. POLICY STATEMENT & CORE PRINCIPLES
+2.1. Least Privilege & Need-to-Know: Access rights strictly limited to authorized personnel based on documented business needs.
+2.2. Separation of Duties & Dual Control (Maker-Checker): Strict SoD enforced for all critical operations.
+2.3. Role-Based Access Control (RBAC): RBAC deployed across all systems; permissions bound to job roles.
+
+3. ACCOUNT PROVISIONING AND MANAGEMENT
+3.1. Onboarding: JML lifecycle via approved IAM tools. Mandatory: security training + policy acknowledgment.
+3.2. Unique IDs mandatory; shared/group accounts prohibited.
+3.3. Formal approval from System Owner + InfoSec.
+3.4. Deprovisioning: Revocation within 2 hours of termination. Inactive accounts disabled after 90 days.
+3.5. Emergency Break-Glass accounts monitored real-time with alerts.
+3.6. Vendor access: time-bound, least privilege, continuous monitoring.
+
+4. AUTHENTICATION STANDARDS
+4.1. MFA mandatory for all corporate system access.
+4.2. Passwords: Min 12 chars standard / 14 chars privileged. Max age 90/60 days.
+4.3. Lockout after 6 invalid attempts, min 30 min duration.
+
+5. PRIVILEGED ACCESS MANAGEMENT (PAM)
+Dedicated admin accounts, central Password Vault, automated rotation every 60 days. Real-time session monitoring + SIEM logging.
+
+6. ACCESS REVIEWS
+Standard/CDE: Quarterly. Privileged: Monthly. Certification by managers. Records retained 5 years.
+
+7. REMOTE ACCESS
+MFA + VPN (IPSec/TLS 1.3) + Bastion Hosts. Corporate-managed devices only. Auto-lock: 15 min standard, 5 min high-risk.
+
+8. ASSET CATEGORIZATION
+Networks, Applications, OS, Data Stores, Cloud, KMS/HSMs, Network Security Devices, SIEM repositories.
+
+9. LOGGING & MONITORING
+All IAM operations logged centrally. WORM-protected logs. SIEM real-time correlation.
+
+10. RESPONSIBILITIES
+Board: Governance. CISO: Policy ownership. InfoSec: Maintenance. IT Ops: IAM hosting. HR: JML notifications. Users: Credential safeguarding.
+
+11. EXCEPTIONS
+Formal exception process with CISO approval, max 1-year expiry.
+
+12. COMPLIANCE
+Automated technical audits and configuration reviews. Non-compliance escalated to risk committees.
+
+13. ENFORCEMENT
+Violations (credential sharing, MFA bypass) result in disciplinary action up to termination.
+
+14. REVIEW
+Annual minimum; ad-hoc for regulatory/organizational/technology changes.
+
+15. COMPLIANCE MAPPING
+ISO 27001:2022 Annex A, PCI DSS v4.0, CBE Cybersecurity Framework mappings per section.`},
+    {id:pid(2),name:'Data Protection Policy',ver:'v1.2',owner:'Sarah Johnson',dept:'Legal',status:'Published',desc:'Personal and sensitive data protection',updated:daysAgo(12)},
+    {id:pid(3),name:'Information Security Policy',ver:'v3.0',owner:'Ahmed Al-Rashid',dept:'IT Security',status:'Published',desc:'Information security framework',updated:daysAgo(3)},
+    {id:pid(4),name:'Acceptable Use Policy',ver:'v1.0',owner:'John Smith',dept:'IT Security',status:'Draft',desc:'Acceptable use of IT resources',updated:daysAgo(1)},
+    {id:pid(5),name:'Business Continuity Policy',ver:'v2.0',owner:'Layla Hassan',dept:'Operations',status:'Under Review',desc:'BCP and disaster recovery',updated:daysAgo(2)},
+    {id:pid(6),name:'Third Party Risk Policy',ver:'v1.1',owner:'Omar Farouk',dept:'Risk Management',status:'Under Review',desc:'Vendor risk management',updated:daysAgo(0)},
+    {id:pid(7),name:'Incident Response Policy',ver:'v2.3',owner:'Ahmed Al-Rashid',dept:'IT Security',status:'Published',desc:'Incident response procedures',updated:daysAgo(7)},
+    {id:pid(8),name:'Password Policy',ver:'v1.0',owner:'John Smith',dept:'IT Security',status:'Approved',desc:'Password complexity and rotation',updated:daysAgo(10)},
+    {id:pid(9),name:'Record Management Policy',ver:'v1.0',owner:'Sarah Johnson',dept:'Legal',status:'Draft',desc:'Records retention and disposal',updated:daysAgo(4)},
+    {id:pid(10),name:'Anti-Bribery Policy',ver:'v1.2',owner:'Layla Hassan',dept:'Compliance',status:'Published',desc:'Anti-bribery compliance',updated:daysAgo(20)},
+    {id:pid(11),name:'Remote Work Policy',ver:'v1.0',owner:'Omar Farouk',dept:'HR',status:'Draft',desc:'Remote and hybrid work guidelines',updated:daysAgo(1)},
+    {id:pid(12),name:'Change Management Policy',ver:'v2.0',owner:'Ahmed Al-Rashid',dept:'IT Security',status:'Archived',desc:'IT change management',updated:daysAgo(60)},
+  ]
+  D.policies = pols
+
+  D.versions = pols.map(p => {
+    const vs = []
+    const [mj,mn] = (p.ver||'v1.0').replace('v','').split('.').map(Number)
+    vs.push({polId:p.id,polName:p.name,ver:p.ver,change:'Initial',by:p.owner,date:daysAgo(30),comment:'Policy created'})
+    if (mj>1||mn>0) vs.push({polId:p.id,polName:p.name,ver:`v${mj}.${Math.max(0,mn-1)}`,change:'Update',by:p.owner,date:daysAgo(45),comment:'Previous version'})
+    return vs
+  }).flat()
+
+  D.workflow = [
+    {polId:pid(5),polName:'Business Continuity Policy',step:'Reviewer',status:'In Progress',assignedTo:'Ahmed Al-Rashid',lastAction:'Pending review',updated:daysAgo(1),history:[{step:'Author',by:'Layla Hassan',decision:'Submit',date:daysAgo(3),comment:'Ready for review'}]},
+    {polId:pid(6),polName:'Third Party Risk Policy',step:'Legal',status:'In Progress',assignedTo:'Sarah Johnson',lastAction:'Reviewer approved',updated:daysAgo(1),history:[{step:'Author',by:'Omar Farouk',decision:'Submit',date:daysAgo(5),comment:'Initial'},{step:'Reviewer',by:'Ahmed Al-Rashid',decision:'Approve',date:daysAgo(2),comment:'Forwarding to Legal'}]},
+    {polId:pid(4),polName:'Acceptable Use Policy',step:'Author',status:'Pending',assignedTo:'John Smith',lastAction:'Not submitted',updated:daysAgo(1),history:[]},
+    {polId:pid(9),polName:'Record Management Policy',step:'Author',status:'Pending',assignedTo:'Sarah Johnson',lastAction:'Not submitted',updated:daysAgo(4),history:[]},
+    {polId:pid(11),polName:'Remote Work Policy',step:'Author',status:'Pending',assignedTo:'Omar Farouk',lastAction:'Not submitted',updated:daysAgo(1),history:[]},
+  ]
+
+  D.controls = [
+    {mapId:'CTRL-001',polId:pid(1),polName:'Access Control Policy',ctrlId:'CTRL-001',ctrlName:'Quarterly Access Review',freq:'Quarterly'},
+    {mapId:'CTRL-002',polId:pid(1),polName:'Access Control Policy',ctrlId:'CTRL-002',ctrlName:'Privileged Access Management',freq:'Monthly'},
+    {mapId:'CTRL-003',polId:pid(2),polName:'Data Protection Policy',ctrlId:'CTRL-003',ctrlName:'Data Classification Review',freq:'Annual'},
+    {mapId:'CTRL-004',polId:pid(3),polName:'Information Security Policy',ctrlId:'CTRL-004',ctrlName:'Security Awareness Training',freq:'Quarterly'},
+    {mapId:'CTRL-005',polId:pid(7),polName:'Incident Response Policy',ctrlId:'CTRL-005',ctrlName:'Tabletop Exercise',freq:'Semi-Annual'},
+    {mapId:'CTRL-006',polId:pid(8),polName:'Password Policy',ctrlId:'CTRL-006',ctrlName:'Password Audit',freq:'Monthly'},
+  ]
+
+  D.risks = [
+    {mapId:'RISK-001',polId:pid(1),polName:'Access Control Policy',riskId:'RISK-001',riskDesc:'Excessive access privileges',sev:'High'},
+    {mapId:'RISK-002',polId:pid(1),polName:'Access Control Policy',riskId:'RISK-002',riskDesc:'Unauthorized system access',sev:'Critical'},
+    {mapId:'RISK-003',polId:pid(2),polName:'Data Protection Policy',riskId:'RISK-003',riskDesc:'Data leakage via insiders',sev:'High'},
+    {mapId:'RISK-004',polId:pid(2),polName:'Data Protection Policy',riskId:'RISK-004',riskDesc:'Personal data breach',sev:'Critical'},
+    {mapId:'RISK-005',polId:pid(3),polName:'Information Security Policy',riskId:'RISK-005',riskDesc:'Security control gaps',sev:'High'},
+    {mapId:'RISK-006',polId:pid(7),polName:'Incident Response Policy',riskId:'RISK-006',riskDesc:'Delayed incident containment',sev:'Medium'},
+    {mapId:'RISK-007',polId:pid(8),polName:'Password Policy',riskId:'RISK-007',riskDesc:'Weak password compromise',sev:'High'},
+  ]
+
+  D.regs = [
+    {mapId:'REG-001',polId:pid(1),polName:'Access Control Policy',fw:'ISO 27001',art:'A.9.1.2',stat:'Compliant'},
+    {mapId:'REG-002',polId:pid(2),polName:'Data Protection Policy',fw:'GDPR',art:'Art. 32',stat:'Compliant'},
+    {mapId:'REG-003',polId:pid(2),polName:'Data Protection Policy',fw:'NCA',art:'ECD-2.1',stat:'Partially Compliant'},
+    {mapId:'REG-004',polId:pid(3),polName:'Information Security Policy',fw:'ISO 27001',art:'A.5.1',stat:'Compliant'},
+    {mapId:'REG-005',polId:pid(7),polName:'Incident Response Policy',fw:'PCI DSS',art:'Req 12.10',stat:'Compliant'},
+    {mapId:'REG-006',polId:pid(10),polName:'Anti-Bribery Policy',fw:'NCA',art:'GCF-1',stat:'Compliant'},
+    {mapId:'REG-007',polId:pid(8),polName:'Password Policy',fw:'ISO 27001',art:'A.9.2.4',stat:'Non-Compliant'},
+  ]
+
+  D.audits = [
+    {id:'FIND-001',polId:pid(1),polName:'Access Control Policy',finding:'Q2 access review not performed',sev:'High',status:'Open',detected:daysAgo(14),due:daysAgo(7)},
+    {id:'FIND-002',polId:pid(5),polName:'Business Continuity Policy',finding:'BCP drill not conducted in 12mo',sev:'Medium',status:'In Progress',detected:daysAgo(30),due:daysAgo(10)},
+    {id:'FIND-003',polId:pid(2),polName:'Data Protection Policy',finding:'Missing classification labels on shared drives',sev:'High',status:'Open',detected:daysAgo(7),due:daysAgo(14)},
+    {id:'FIND-004',polId:pid(8),polName:'Password Policy',finding:'Password rotation not enforced legacy systems',sev:'Critical',status:'Open',detected:daysAgo(3),due:daysAgo(21)},
+    {id:'FIND-005',polId:pid(3),polName:'Information Security Policy',finding:'Awareness training below 70%',sev:'Medium',status:'Closed',detected:daysAgo(60),due:daysAgo(30)},
+  ]
+
+  D.acks = [
+    {polId:pid(1),polName:'Access Control Policy',emp:'Ahmed Al-Rashid',dept:'IT Security',status:'Accepted',date:daysAgo(10)},
+    {polId:pid(1),polName:'Access Control Policy',emp:'Layla Hassan',dept:'Operations',status:'Accepted',date:daysAgo(8)},
+    {polId:pid(2),polName:'Data Protection Policy',emp:'Sarah Johnson',dept:'Legal',status:'Accepted',date:daysAgo(15)},
+    {polId:pid(3),polName:'Information Security Policy',emp:'Ahmed Al-Rashid',dept:'IT Security',status:'Accepted',date:daysAgo(5)},
+    {polId:pid(3),polName:'Information Security Policy',emp:'Omar Farouk',dept:'Risk Management',status:'Pending',date:null},
+    {polId:pid(7),polName:'Incident Response Policy',emp:'John Smith',dept:'IT Security',status:'Accepted',date:daysAgo(12)},
+    {polId:pid(10),polName:'Anti-Bribery Policy',emp:'Layla Hassan',dept:'Compliance',status:'Accepted',date:daysAgo(20)},
+  ]
+
+  USE_STORAGE = true
+  save()
+  alertMsg('📦 Loaded 12 seeded policies. Create new ones or edit existing.', 'info')
+}
+
+function resetAllData() {
+  if (!confirm('⚠️ This will DELETE ALL your data (policies, approvals, mappings, audits, acknowledgments) and restore the original 12 seeded policies. Are you sure?')) return
+  try { localStorage.removeItem(STORAGE_KEY) } catch(e) {}
+  D = { policies:[], versions:[], workflow:[], controls:[], risks:[], regs:[], audits:[], acks:[] }
+  seed()
+  renderAll()
+  alertMsg('🔄 Data reset to original 12 seeded policies', 'info')
+}
+
+function getPol(id) { return D.policies.find(p => p.id === id) }
+
+function nextId(arr, prefix, field) {
+  if (!arr.length) return prefix + '001'
+  const nums = arr.map(a => { const v = a[field]||''; return parseInt(v.replace(prefix,''))||0 }).filter(n => n > 0)
+  return prefix + String(Math.max(0, ...nums) + 1).padStart(3,'0')
+}
+
+function sb(s) {
+  const m = {'Draft':'st-draft','Under Review':'st-review','Approved':'st-approve','Published':'st-published','Archived':'st-archived','Rejected':'st-rejected','Open':'st-open','Closed':'st-closed','In Progress':'st-progress','Compliant':'st-approve','Partially Compliant':'st-review','Non-Compliant':'st-rejected','Not Assessed':'st-draft'}
+  return `<span class="status ${m[s]||'st-draft'}">${s}</span>`
+}
+function sevBadge(s) {
+  const c = (s==='Critical'||s==='High')?'st-red':s==='Medium'?'st-amber':'st-green'
+  return `<span class="status ${c}">${s}</span>`
+}
+
+// ======== RENDER FUNCTIONS ========
+function renderRepo() {
+  const q = (document.getElementById('repoQ').value||'').toLowerCase()
+  const f = document.getElementById('repoF').value
+  let list = D.policies
+  if (q) list = list.filter(p => p.id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || p.owner.toLowerCase().includes(q))
+  if (f) list = list.filter(p => p.status === f)
+  const b = document.getElementById('repoB')
+  b.innerHTML = list.map(p => `<tr>
+    <td><strong class="font-mono">${p.id}</strong></td>
+    <td><strong style="cursor:pointer;color:#d4a832;text-decoration:underline;text-decoration-color:rgba(212,168,50,0.3)" onclick="viewPolicy('${p.id}')">${p.name}</strong><br><span class="text-muted text-xs">${(p.desc||'').slice(0,50)}</span></td>
+    <td><span class="version">${p.ver||'v1.0'}</span></td>
+    <td>${p.owner}</td>
+    <td>${p.dept||'—'}</td>
+    <td>${sb(p.status)}</td>
+    <td class="text-xs">${p.updated||'—'}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="openEdit('${p.id}')">✏️</button>
+      ${p.status==='Draft'||p.status==='Under Review'
+        ? `<button class="btn btn-gold btn-sm" onclick="submitWf('${p.id}')">🚀</button>`
+        : p.status==='Approved'
+        ? `<button class="btn btn-success btn-sm" onclick="publishPolicy('${p.id}')">📢 Publish</button>`
+        : ''}
+    </td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="8" class="empty"><p>No policies match your search</p></td></tr>'
+  document.getElementById('cRepo').textContent = D.policies.length
+}
+
+function renderWf() {
+  const q = (document.getElementById('wfQ').value||'').toLowerCase()
+  const f = document.getElementById('wfF').value
+  let list = D.workflow
+  if (q) list = list.filter(w => w.polId.toLowerCase().includes(q) || w.polName.toLowerCase().includes(q) || (w.assignedTo||'').toLowerCase().includes(q))
+  if (f) list = list.filter(w => w.status === f)
+  const WF_STEPS = ['Author','Reviewer','Legal','CISO']
+  const b = document.getElementById('wfB')
+  b.innerHTML = list.map(w => {
+    const isPending = w.status==='Pending' && w.step==='Author'
+    return `<tr class="${isPending?'overdue':''}">
+      <td><span class="font-mono">${w.polId}</span><br><span class="text-xs">${w.polName}</span></td>
+      <td><div class="approval-chain">${WF_STEPS.map((s,i)=>{
+        const h = w.history?w.history.filter(x=>x.step===s):[]
+        const done = h.length>0 && h[h.length-1].decision==='Approve'
+        const rej = h.length>0 && h[h.length-1].decision==='Reject'
+        const cur = s===w.step && w.status==='In Progress'
+        if (rej) return `<span class="approval-step" style="background:#f8d7da;color:#721c24">✕ ${s}</span>`
+        if (done) return `<span class="approval-step done">✓ ${s}</span>`
+        if (cur) return `<span class="approval-step current">⏳ ${s}</span>`
+        return `<span class="approval-step pending">${s}</span>`
+      }).join('<span style="color:#d0d3da;font-size:10px">→</span>')}</div></td>
+      <td>${w.status==='Approved'?sb('Approved'):w.status==='Rejected'?sb('Rejected'):w.status==='In Progress'?sb('Under Review'):sb('Draft')}</td>
+      <td class="text-xs">${w.assignedTo||'—'}</td>
+      <td class="text-xs">${w.lastAction||'—'}</td>
+      <td>
+        ${isPending?`<button class="btn btn-gold btn-sm" onclick="wfSubmit('${w.polId}')">📤 Submit</button>`
+        : w.status==='In Progress'?`<button class="btn btn-gold btn-sm" onclick="openApproval('${w.polId}')">✍️ Review</button>`
+        : `<span class="text-xs text-muted">—</span>`}
+        <button class="btn btn-outline btn-sm" onclick="viewWfHist('${w.polId}')">📜</button>
+      </td>
+    </tr>`
+  }).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="6" class="empty"><p>No workflows</p></td></tr>'
+  document.getElementById('cWf').textContent = D.workflow.length
+}
+
+function renderVer() {
+  const q = (document.getElementById('verQ').value||'').toLowerCase()
+  let list = [...D.versions].sort((a,b)=>new Date(b.date)-new Date(a.date))
+  if (q) list = list.filter(v => v.polId.toLowerCase().includes(q) || v.polName.toLowerCase().includes(q) || (v.comment||'').toLowerCase().includes(q))
+  const b = document.getElementById('verB')
+  b.innerHTML = list.map(v => `<tr>
+    <td class="font-mono">${v.polId}</td><td>${v.polName}</td>
+    <td><span class="version">${v.ver}</span></td>
+    <td>${v.change||'Update'}</td><td>${v.by}</td>
+    <td class="text-xs">${v.date}</td><td class="text-xs text-muted">${v.comment||'—'}</td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="7" class="empty"><p>No version history</p></td></tr>'
+  document.getElementById('cVer').textContent = D.versions.length
+}
+
+function renderCtrl() {
+  const q = (document.getElementById('ctrlQ').value||'').toLowerCase()
+  let list = D.controls
+  if (q) list = list.filter(c => c.mapId.toLowerCase().includes(q) || c.polId.toLowerCase().includes(q) || c.ctrlName.toLowerCase().includes(q))
+  const b = document.getElementById('ctrlB')
+  b.innerHTML = list.map(c => `<tr>
+    <td class="font-mono">${c.mapId}</td>
+    <td><span class="font-mono">${c.polId}</span> ${c.polName}</td>
+    <td class="font-mono">${c.ctrlId}</td><td>${c.ctrlName}</td>
+    <td><span class="status st-draft">${c.freq}</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="delCtrl('${c.mapId}')">🗑️</button></td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="6" class="empty"><p>No controls mapped</p></td></tr>'
+  document.getElementById('cCtrl').textContent = D.controls.length
+}
+
+function renderRisk() {
+  const q = (document.getElementById('riskQ').value||'').toLowerCase()
+  let list = D.risks
+  if (q) list = list.filter(r => r.mapId.toLowerCase().includes(q) || r.polId.toLowerCase().includes(q) || r.riskDesc.toLowerCase().includes(q))
+  const b = document.getElementById('riskB')
+  b.innerHTML = list.map(r => `<tr>
+    <td class="font-mono">${r.mapId}</td>
+    <td><span class="font-mono">${r.polId}</span> ${r.polName}</td>
+    <td class="font-mono">${r.riskId}</td><td>${r.riskDesc}</td>
+    <td>${sevBadge(r.sev)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delRisk('${r.mapId}')">🗑️</button></td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="6" class="empty"><p>No risks mapped</p></td></tr>'
+  document.getElementById('cRisk').textContent = D.risks.length
+}
+
+function renderReg() {
+  const q = (document.getElementById('regQ').value||'').toLowerCase()
+  let list = D.regs
+  if (q) list = list.filter(r => r.mapId.toLowerCase().includes(q) || r.polId.toLowerCase().includes(q) || r.fw.toLowerCase().includes(q))
+  const b = document.getElementById('regB')
+  b.innerHTML = list.map(r => `<tr class="${r.stat==='Non-Compliant'?'overdue':''}">
+    <td class="font-mono">${r.mapId}</td>
+    <td><span class="font-mono">${r.polId}</span> ${r.polName}</td>
+    <td><strong>${r.fw}</strong></td><td class="text-xs">${r.art||'—'}</td>
+    <td>${sb(r.stat)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delReg('${r.mapId}')">🗑️</button></td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="6" class="empty"><p>No regulations mapped</p></td></tr>'
+  document.getElementById('cReg').textContent = D.regs.length
+}
+
+function renderAudit() {
+  const q = (document.getElementById('auditQ').value||'').toLowerCase()
+  const sf = document.getElementById('auditSevF').value
+  const stf = document.getElementById('auditStatF').value
+  let list = D.audits
+  if (q) list = list.filter(a => a.id.toLowerCase().includes(q) || a.finding.toLowerCase().includes(q) || a.polId.toLowerCase().includes(q))
+  if (sf) list = list.filter(a => a.sev === sf)
+  if (stf) list = list.filter(a => a.status === stf)
+  const now = new Date()
+  const b = document.getElementById('auditB')
+  b.innerHTML = list.map(a => {
+    const od = a.status!=='Closed' && new Date(a.due) < now
+    return `<tr class="${od?'overdue':''}">
+      <td class="font-mono">${a.id}</td>
+      <td><span class="font-mono">${a.polId}</span> ${a.polName}</td>
+      <td>${a.finding}</td><td>${sevBadge(a.sev)}</td>
+      <td>${sb(a.status)} ${od?'<span class="flag flag-red">OVERDUE</span>':''}</td>
+      <td class="text-xs">${a.detected}</td>
+      <td class="text-xs" style="${od?'color:#dc3545;font-weight:600':''}">${a.due}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="nextAuditStat('${a.id}')">⏭</button>
+      <button class="btn btn-danger btn-sm" onclick="delAudit('${a.id}')">🗑️</button></td>
+    </tr>`
+  }).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="8" class="empty"><p>No findings</p></td></tr>'
+  document.getElementById('cAudit').textContent = D.audits.length
+}
+
+function renderAck() {
+  const q = (document.getElementById('ackQ').value||'').toLowerCase()
+  const f = document.getElementById('ackF').value
+  let list = D.acks
+  if (q) list = list.filter(a => a.polId.toLowerCase().includes(q) || a.polName.toLowerCase().includes(q) || a.emp.toLowerCase().includes(q))
+  if (f) list = list.filter(a => a.status === f)
+  const b = document.getElementById('ackB')
+  b.innerHTML = list.map(a => `<tr class="${a.status==='Pending'?'overdue':''}">
+    <td><span class="font-mono">${a.polId}</span> ${a.polName}</td>
+    <td>${a.emp}</td><td>${a.dept}</td>
+    <td>${sb(a.status)}</td><td class="text-xs">${a.date||'—'}</td>
+  </tr>`).join('')
+  if (!list.length) b.innerHTML = '<tr><td colspan="5" class="empty"><p>No acknowledgments</p></td></tr>'
+  document.getElementById('cAck').textContent = D.acks.length
+}
+
+function renderAll() {
+  renderRepo(); renderWf(); renderVer(); renderCtrl(); renderRisk(); renderReg(); renderAudit(); renderAck()
+  scanAlerts()
+}
+
+// ======== POLICY CRUD ========
+function openCreate() {
+  document.getElementById('cName').value=''; document.getElementById('cOwner').value=''; document.getElementById('cDesc').value=''
+  openM('mCreate')
+}
+
+function createPolicy() {
+  const name = document.getElementById('cName').value.trim()
+  const owner = document.getElementById('cOwner').value.trim()
+  const dept = document.getElementById('cDept').value
+  const status = document.getElementById('cStat').value
+  const desc = document.getElementById('cDesc').value.trim()
+  if (!name) return alertMsg('Policy name is required', 'danger')
+  if (!owner) return alertMsg('Owner is required', 'danger')
+  const id = nextId(D.policies, 'POL-', 'id')
+  const v = 'v1.0'
+  D.policies.push({ id, name, ver:v, owner, dept, status, desc, updated: today() })
+  D.versions.push({ polId:id, polName:name, ver:v, change:'Initial', by:owner, date:today(), comment:'Policy created' })
+  D.workflow.push({ polId:id, polName:name, step:'Author', status:'Pending', assignedTo:owner, lastAction:'Not submitted', updated:today(), history:[] })
+  save()
+  closeM('mCreate')
+  renderAll()
+  alertMsg(`✅ ${id} "${name}" created (${v})`, 'success')
+}
+
+function openEdit(id) {
+  const p = getPol(id)
+  if (!p) return
+  document.getElementById('eLabel').textContent = `— ${p.id}`
+  document.getElementById('eName').value = p.name
+  document.getElementById('eOwner').value = p.owner
+  document.getElementById('eDept').value = p.dept || 'IT Security'
+  document.getElementById('eStat').value = p.status
+  document.getElementById('eDesc').value = p.desc || ''
+  document.getElementById('eComment').value = ''
+  document.getElementById('mEdit').dataset.editId = id
+  openM('mEdit')
+}
+
+function saveEdit() {
+  const id = document.getElementById('mEdit').dataset.editId
+  const p = getPol(id)
+  if (!p) return
+  const name = document.getElementById('eName').value.trim()
+  const owner = document.getElementById('eOwner').value.trim()
+  const dept = document.getElementById('eDept').value
+  const status = document.getElementById('eStat').value
+  const desc = document.getElementById('eDesc').value.trim()
+  const comment = document.getElementById('eComment').value.trim() || 'Updated'
+  if (!name) return alertMsg('Policy name required', 'danger')
+  if (!owner) return alertMsg('Owner required', 'danger')
+
+  const oldV = p.ver || 'v1.0'
+  const parts = oldV.replace('v','').split('.').map(Number)
+  const newV = status === 'Published' ? `v${parts[0]+1}.0` : status === 'Archived' ? `v${parts[0]}.${(parts[1]||0)+1}` : `v${parts[0]}.${(parts[1]||0)+1}`
+
+  const changed = p.name !== name || p.owner !== owner || p.dept !== dept || p.desc !== desc
+  if (changed || status !== p.status) {
+    D.versions.push({ polId:id, polName:name, ver:newV, change: status !== p.status ? `Status: ${p.status}→${status}` : 'Update', by:owner, date:today(), comment })
+  }
+
+  p.name = name; p.owner = owner; p.dept = dept; p.status = status; p.desc = desc; p.ver = newV; p.updated = today()
+  D.versions.forEach(v => { if (v.polId === id) v.polName = name })
+  D.controls.forEach(c => { if (c.polId === id) c.polName = name })
+  D.risks.forEach(r => { if (r.polId === id) r.polName = name })
+  D.regs.forEach(r => { if (r.polId === id) r.polName = name })
+  const wf = D.workflow.find(w => w.polId === id)
+  if (wf) wf.polName = name
+
+  save()
+  closeM('mEdit')
+  renderAll()
+  alertMsg(`💾 ${id} updated → ${newV}`, 'success')
+}
+
+// ======== WORKFLOW ========
+const WF_STEPS = ['Author','Reviewer','Legal','CISO']
+const WF_ORDER = { 'Author':0, 'Reviewer':1, 'Legal':2, 'CISO':3 }
+
+function submitWf(polId) {
+  const p = getPol(polId); if (!p) return
+  p.status = 'Under Review'; p.updated = today()
+  const wf = D.workflow.find(w => w.polId === polId)
+  if (wf) { wf.step = 'Author'; wf.status = 'Pending'; wf.assignedTo = p.owner; wf.lastAction = 'Ready'; wf.updated = today() }
+  save(); renderRepo(); renderWf()
+  alertMsg(`📋 ${polId} ready for workflow`, 'info')
+}
+
+function publishPolicy(polId) {
+  const p = getPol(polId); if (!p || p.status !== 'Approved') return
+  p.status = 'Published'; p.updated = today()
+  const parts = (p.ver||'v1.0').replace('v','').split('.').map(Number)
+  p.ver = `v${parts[0]+1}.0`
+  D.versions.push({ polId, polName: p.name, ver: p.ver, change: 'Published', by: 'System', date: today(), comment: 'Policy published' })
+  save(); renderRepo()
+  alertMsg(`📢 ${polId} Published → ${p.ver}`, 'success')
+}
+
+function wfSubmit(polId) {
+  const wf = D.workflow.find(w => w.polId === polId)
+  if (!wf) return
+  wf.step = 'Reviewer'; wf.status = 'In Progress'; wf.assignedTo = 'Ahmed Al-Rashid'
+  wf.lastAction = 'Submitted by Author'; wf.updated = today()
+  if (!wf.history) wf.history = []
+  wf.history.push({ step:'Author', by:wf.assignedTo, decision:'Submit', date:today(), comment:'Submitted for review' })
+  save(); renderWf()
+  alertMsg(`📤 ${polId} → awaiting Reviewer (Ahmed Al-Rashid)`, 'success')
+}
+
+function openApproval(polId) {
+  const wf = D.workflow.find(w => w.polId === polId)
+  if (!wf) return
+  document.getElementById('mApproval').dataset.wfId = polId
+  document.getElementById('mApprovalTitle').textContent = `Approval: ${wf.step} Step`
+  document.getElementById('mApprovalInfo').innerHTML = `<strong>${polId}</strong> — ${wf.polName}<br>Step: <strong>${wf.step}</strong> · Assigned: ${wf.assignedTo}`
+  document.getElementById('mApprovalDec').value = 'Approve'
+  document.getElementById('mApprovalComment').value = ''
+  openM('mApproval')
+}
+
+function submitApproval() {
+  const polId = document.getElementById('mApproval').dataset.wfId
+  const wf = D.workflow.find(w => w.polId === polId)
+  if (!wf) return
+  const decision = document.getElementById('mApprovalDec').value
+  const comment = document.getElementById('mApprovalComment').value.trim()
+  const stepIdx = WF_ORDER[wf.step]
+  if (!wf.history) wf.history = []
+
+  if (decision === 'Reject') {
+    wf.status = 'Rejected'
+    wf.lastAction = `Rejected at ${wf.step}`
+    wf.history.push({ step:wf.step, by:wf.assignedTo, decision:'Reject', date:today(), comment:comment||'Rejected' })
+    const p = getPol(polId)
+    if (p) { p.status = 'Draft'; p.updated = today() }
+    save(); closeM('mApproval'); renderRepo(); renderWf()
+    alertMsg(`❌ ${polId} REJECTED at ${wf.step}`, 'danger')
+    return
+  }
+
+  wf.history.push({ step:wf.step, by:wf.assignedTo, decision:'Approve', date:today(), comment:comment||'Approved' })
+
+  if (stepIdx >= 3) {
+    wf.status = 'Approved'; wf.lastAction = 'Fully approved'
+    const p = getPol(polId)
+    if (p) {
+      p.status = 'Approved'; p.updated = today()
+      const parts = (p.ver||'v1.0').replace('v','').split('.').map(Number)
+      p.ver = `v${parts[0]+1}.0`
+      D.versions.push({ polId, polName: p.name, ver:p.ver, change:'Approved', by:wf.assignedTo, date:today(), comment:'Policy fully approved' })
+    }
+    save(); closeM('mApproval'); renderAll()
+    alertMsg(`✅ ${polId} FULLY APPROVED by all 4 stages!`, 'success')
+  } else {
+    const next = WF_STEPS[stepIdx + 1]
+    const assignees = { 'Reviewer':'Ahmed Al-Rashid', 'Legal':'Sarah Johnson', 'CISO':'Omar Farouk' }
+    wf.step = next; wf.assignedTo = assignees[next]||'System'
+    wf.lastAction = `${WF_STEPS[stepIdx]} approved → ${next}`; wf.updated = today()
+    save(); closeM('mApproval'); renderWf()
+    alertMsg(`✅ ${polId} approved by ${WF_STEPS[stepIdx]} → now with ${next}`, 'success')
+  }
+}
+
+function viewWfHist(polId) {
+  const wf = D.workflow.find(w => w.polId === polId)
+  if (!wf) return
+  const hist = wf.history || []
+  let html = '<div class="timeline">'
+  if (!hist.length) html += '<div class="text-muted text-xs" style="padding:10px">No history</div>'
+  hist.forEach(h => {
+    html += `<div class="timeline-item"><div class="t-time">${h.date}</div><div class="t-title">${h.step}: ${h.decision} ${h.decision==='Approve'?'✅':h.decision==='Reject'?'❌':'📤'}</div><div class="t-desc">By ${h.by}${h.comment?' — "'+h.comment+'"':''}</div></div>`
+  })
+  html += '</div>'
+  document.getElementById('mApprovalTitle').textContent = `History: ${polId}`
+  document.getElementById('mApprovalInfo').innerHTML = `<strong>${polId}</strong> — ${wf.polName}<br><br>${html}`
+  document.querySelector('#mApproval .modal-footer').style.display = 'none'
+  const orig = oncloseMapproval || null
+  document.querySelector('#mApproval .modal-close').onclick = function() {
+    document.getElementById('mApprovalTitle').textContent = 'Approval Action'
+    document.querySelector('#mApproval .modal-footer').style.display = ''
+    closeM('mApproval')
+  }
+  openM('mApproval')
+}
+
+// ======== CONTROLS ========
+function openCtrl() {
+  const s = document.getElementById('mCtrlPol')
+  s.innerHTML = D.policies.map(p => `<option value="${p.id}">${p.id} — ${p.name}</option>`).join('')
+  document.getElementById('mCtrlName').value = ''
+  document.getElementById('mCtrlId').value = nextId(D.controls, 'CTRL-', 'mapId')
+  openM('mCtrl')
+}
+function saveCtrl() {
+  const polId = document.getElementById('mCtrlPol').value
+  const name = document.getElementById('mCtrlName').value.trim()
+  if (!name) return alertMsg('Control name required', 'danger')
+  const p = getPol(polId); if (!p) return
+  D.controls.push({ mapId:nextId(D.controls,'CTRL-','mapId'), polId, polName:p.name, ctrlId:nextId(D.controls,'CTRL-','ctrlId'), ctrlName:name, freq:document.getElementById('mCtrlFreq').value })
+  save(); closeM('mCtrl'); renderCtrl()
+  alertMsg(`✅ Control "${name}" → ${polId}`, 'success')
+}
+function delCtrl(mid) { if(!confirm('Delete?'))return; D.controls=D.controls.filter(c=>c.mapId!==mid); save(); renderCtrl() }
+
+// ======== RISKS ========
+function openRisk() {
+  const s = document.getElementById('mRiskPol')
+  s.innerHTML = D.policies.map(p => `<option value="${p.id}">${p.id} — ${p.name}</option>`).join('')
+  document.getElementById('mRiskDesc').value = ''
+  document.getElementById('mRiskId').value = nextId(D.risks, 'RISK-', 'mapId')
+  openM('mRisk')
+}
+function saveRisk() {
+  const polId = document.getElementById('mRiskPol').value
+  const desc = document.getElementById('mRiskDesc').value.trim()
+  if (!desc) return alertMsg('Risk description required', 'danger')
+  const p = getPol(polId); if (!p) return
+  D.risks.push({ mapId:nextId(D.risks,'RISK-','mapId'), polId, polName:p.name, riskId:nextId(D.risks,'RISK-','riskId'), riskDesc:desc, sev:document.getElementById('mRiskSev').value })
+  save(); closeM('mRisk'); renderRisk()
+  alertMsg(`✅ Risk "${desc}" → ${polId}`, 'success')
+}
+function delRisk(mid) { if(!confirm('Delete?'))return; D.risks=D.risks.filter(r=>r.mapId!==mid); save(); renderRisk() }
+
+// ======== REGULATIONS ========
+function openReg() {
+  const s = document.getElementById('mRegPol')
+  s.innerHTML = D.policies.map(p => `<option value="${p.id}">${p.id} — ${p.name}</option>`).join('')
+  document.getElementById('mRegArt').value = ''
+  openM('mReg')
+}
+function saveReg() {
+  const polId = document.getElementById('mRegPol').value
+  const p = getPol(polId); if (!p) return
+  D.regs.push({ mapId:nextId(D.regs,'REG-','mapId'), polId, polName:p.name, fw:document.getElementById('mRegFw').value, art:document.getElementById('mRegArt').value.trim()||'—', stat:document.getElementById('mRegStat').value })
+  save(); closeM('mReg'); renderReg()
+  alertMsg(`✅ Regulation mapped to ${polId}`, 'success')
+}
+function delReg(mid) { if(!confirm('Delete?'))return; D.regs=D.regs.filter(r=>r.mapId!==mid); save(); renderReg() }
+
+// ======== AUDIT ========
+function openAudit() {
+  const s = document.getElementById('mAuditPol')
+  s.innerHTML = D.policies.map(p => `<option value="${p.id}">${p.id} — ${p.name}</option>`).join('')
+  document.getElementById('mAuditDesc').value = ''
+  document.getElementById('mAuditDue').value = ''
+  openM('mAudit')
+}
+function saveAudit() {
+  const polId = document.getElementById('mAuditPol').value
+  const desc = document.getElementById('mAuditDesc').value.trim()
+  const due = document.getElementById('mAuditDue').value
+  if (!desc) return alertMsg('Finding description required', 'danger')
+  if (!due) return alertMsg('Due date required', 'danger')
+  const p = getPol(polId); if (!p) return
+  D.audits.push({ id:nextId(D.audits,'FIND-','id'), polId, polName:p.name, finding:desc, sev:document.getElementById('mAuditSev').value, status:document.getElementById('mAuditStat').value, detected:today(), due })
+  save(); closeM('mAudit'); renderAudit()
+  alertMsg(`🔍 Finding created for ${polId}`, 'success')
+}
+function nextAuditStat(id) {
+  const a = D.audits.find(x => x.id === id)
+  if (!a) return
+  const opts = ['Open','In Progress','Closed']
+  a.status = opts[(opts.indexOf(a.status) + 1) % 3]
+  save(); renderAudit()
+}
+function delAudit(id) { if(!confirm('Delete?'))return; D.audits=D.audits.filter(a=>a.id!==id); save(); renderAudit() }
+
+function scanAudit() {
+  const now = new Date()
+  let findings = []
+  D.audits.filter(a => a.status !== 'Closed' && new Date(a.due) < now).forEach(a => {
+    findings.push(`<div class="alert alert-danger">🚨 <strong>${a.id}</strong> — ${a.finding} (due ${a.due}) — OVERDUE</div>`)
+  })
+  D.workflow.filter(w => w.status === 'In Progress' && w.updated && (new Date() - new Date(w.updated))/(1000*60*60*24) > 14).forEach(w => {
+    findings.push(`<div class="alert alert-warning">⚠️ <strong>${w.polId}</strong> stuck at "${w.step}" for >14 days</div>`)
+  })
+  D.policies.filter(p => p.status === 'Published' && !D.controls.find(c => c.polId === p.id)).forEach(p => {
+    findings.push(`<div class="alert alert-warning">⚠️ <strong>${p.id}</strong> Published but NO controls mapped</div>`)
+  })
+  D.policies.filter(p => p.status === 'Published' && !D.risks.find(r => r.polId === p.id)).forEach(p => {
+    findings.push(`<div class="alert alert-warning">⚠️ <strong>${p.id}</strong> Published but NO risks mapped</div>`)
+  })
+  D.regs.filter(r => r.stat === 'Non-Compliant').forEach(r => {
+    findings.push(`<div class="alert alert-danger">🔴 <strong>${r.mapId}</strong> ${r.polName} non-compliant with ${r.fw}</div>`)
+  })
+  const c = document.getElementById('auditAlertB')
+  if (findings.length) c.innerHTML = findings.join('')
+  else c.innerHTML = '<div class="alert alert-success">✅ Audit scan complete — no issues</div>'
+}
+
+function scanAlerts() {
+  const now = new Date()
+  const overdue = D.audits.filter(a => a.status !== 'Closed' && new Date(a.due) < now)
+  const pending = D.workflow.filter(w => w.status === 'Pending' && w.step === 'Author')
+  const nonComp = D.regs.filter(r => r.stat === 'Non-Compliant')
+  let msgs = []
+  if (overdue.length) msgs.push(`🚨 <strong>${overdue.length} overdue finding${overdue.length>1?'s':''}</strong> — immediate action required`)
+  if (pending.length) msgs.push(`⚠️ <strong>${pending.length} draft${pending.length>1?'s':''}</strong> not submitted for approval`)
+  if (nonComp.length) msgs.push(`🔴 <strong>${nonComp.length} non-compliant regulation${nonComp.length>1?'s':''}</strong>`)
+  if (msgs.length) document.getElementById('alertBox').innerHTML = msgs.map(m => `<div class="alert alert-danger">${m}</div>`).join('')
+}
+
+// ======== ACKNOWLEDGMENT ========
+function openAck() {
+  const s = document.getElementById('mAckPol')
+  s.innerHTML = D.policies.filter(p => p.status==='Published'||p.status==='Approved').map(p => `<option value="${p.id}">${p.id} — ${p.name}</option>`).join('')
+  document.getElementById('mAckEmp').value = ''
+  openM('mAck')
+}
+function saveAck() {
+  const polId = document.getElementById('mAckPol').value
+  const emp = document.getElementById('mAckEmp').value.trim()
+  if (!emp) return alertMsg('Employee name required', 'danger')
+  const p = getPol(polId); if (!p) return
+  const stat = document.getElementById('mAckStat').value
+  D.acks.push({ polId, polName:p.name, emp, dept:document.getElementById('mAckDept').value, status:stat, date:stat==='Accepted'?today():null })
+  save(); closeM('mAck'); renderAck()
+  alertMsg(`✅ ${emp} recorded for ${polId}`, 'success')
+}
+
+// ======== EXPORT ========
+function exportData() {
+  const blob = new Blob([JSON.stringify(D,null,2)], {type:'application/json'})
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `policy-management-export-${today()}.json`
+  a.click()
+}
+
+function openImport() {
+  document.getElementById('csvInput').value = ''
+  openM('mImport')
+}
+
+function importCSV() {
+  const raw = document.getElementById('csvInput').value.trim()
+  if (!raw) return alertMsg('Paste CSV data first', 'danger')
+  const delim = document.getElementById('csvDelim').value === '\\t' ? '\t' : document.getElementById('csvDelim').value
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l)
+  let count = 0
+  const VALID_STAT = { 'Draft':1,'Under Review':1,'Approved':1,'Published':1,'Archived':1 }
+  const DEPTS = ['IT Security','Legal','HR','Finance','Operations','Compliance','Risk Management']
+  lines.forEach(line => {
+    const parts = line.split(delim).map(p => p.trim().replace(/^"|"$/g,''))
+    if (parts.length < 2) return
+    const [name, owner, dept, status, ...descParts] = parts
+    if (!name || !owner) return
+    const id = nextId(D.policies, 'POL-', 'id')
+    const v = 'v1.0'
+    const s = VALID_STAT[status] ? status : 'Draft'
+    const d = DEPTS.includes(dept) ? dept : 'IT Security'
+    D.policies.push({ id, name, ver:v, owner, dept:d, status:s, desc: descParts.join(', ')||'', updated: today() })
+    D.versions.push({ polId:id, polName:name, ver:v, change:'Imported', by:owner, date:today(), comment:'Imported from CSV' })
+    D.workflow.push({ polId:id, polName:name, step:'Author', status:s==='Published'?'Approved':'Pending', assignedTo:owner, lastAction:s==='Published'?'Auto-approved':'Not submitted', updated:today(), history:s==='Published'?[{ step:'Author', by:owner, decision:'Approve', date:today(), comment:'Imported as Published' }]:[] })
+    count++
+  })
+  if (!count) return alertMsg('No valid rows found. Use: name, owner, dept, status', 'danger')
+  save(); renderAll()
+  closeM('mImport')
+  alertMsg(`📥 Imported ${count} polic${count>1?'ies':'y'} from CSV`, 'success')
+}
+
+// ======== UTILITIES ========
+function openM(id) { document.getElementById(id).classList.add('open') }
+function closeM(id) { document.getElementById(id).classList.remove('open') }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) { if (e.target === this) closeM(this.id) })
+})
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const map = { 'repo':'s-repo', 'wf':'s-wf', 'ver':'s-ver', 'ctrl':'s-ctrl', 'risk':'s-risk', 'reg':'s-reg', 'audit':'s-audit', 'ack':'s-ack' }
+    const sid = map[this.dataset.tab]
+    document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active'))
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    if (sid) document.getElementById(sid).classList.add('active')
+    this.classList.add('active')
+    if (this.dataset.tab === 'audit') scanAudit()
+  })
+})
+
+// ======== BOOT ========
+load()
+renderAll()
+</script>
+</body>
+</html>

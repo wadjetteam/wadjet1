@@ -1,70 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid } from 'recharts'
 import { Link, AlertTriangle, Shield, Clock, CheckCircle, Plus, ChevronDown, ChevronUp, ExternalLink, Filter, Download } from 'lucide-react'
 import { downloadCSV, downloadTPRMPDF } from '../lib/downloadUtils'
 
-const vendors = [
-  {
-    id: 'V-001', name: 'Temenos T24 Core Banking', category: 'Core Infrastructure', tier: 1, country: 'Switzerland',
-    riskScore: 28, riskLevel: 'medium', status: 'active', contractExpiry: '2027-12-31',
-    lastAssessment: '2026-02-15', nextAssessment: '2026-08-15',
-    concentration: 95, dataAccess: true, regulatoryApproved: true,
-    controls: { security: 4.2, bcp: 4.5, dataPrivacy: 3.8, financial: 4.8, compliance: 4.1 },
-    findings: 2, openFindings: 1,
-    subVendors: ['Amazon AWS (EU)', 'Oracle DB'],
-    spend: 8.4,
-  },
-  {
-    id: 'V-002', name: 'SWIFT Service Bureau', category: 'Payments Infrastructure', tier: 1, country: 'Belgium',
-    riskScore: 32, riskLevel: 'medium', status: 'active', contractExpiry: '2026-09-30',
-    lastAssessment: '2025-12-01', nextAssessment: '2026-06-01',
-    concentration: 100, dataAccess: true, regulatoryApproved: true,
-    controls: { security: 4.8, bcp: 4.6, dataPrivacy: 4.0, financial: 4.9, compliance: 4.7 },
-    findings: 1, openFindings: 0,
-    subVendors: [],
-    spend: 2.1,
-  },
-  {
-    id: 'V-003', name: 'IBM Security QRadar SIEM', category: 'Cybersecurity', tier: 2, country: 'USA',
-    riskScore: 41, riskLevel: 'medium', status: 'active', contractExpiry: '2027-06-15',
-    lastAssessment: '2025-10-20', nextAssessment: '2026-04-20',
-    concentration: 60, dataAccess: false, regulatoryApproved: true,
-    controls: { security: 4.5, bcp: 3.9, dataPrivacy: 4.2, financial: 4.3, compliance: 4.0 },
-    findings: 3, openFindings: 2,
-    subVendors: ['Azure (US East)'],
-    spend: 1.8,
-  },
-  {
-    id: 'V-004', name: 'Equifax Credit Bureau Egypt', category: 'Credit Data Services', tier: 2, country: 'Egypt',
-    riskScore: 55, riskLevel: 'high', status: 'review', contractExpiry: '2026-12-31',
-    lastAssessment: '2025-08-10', nextAssessment: '2026-02-10',
-    concentration: 40, dataAccess: true, regulatoryApproved: true,
-    controls: { security: 3.2, bcp: 3.5, dataPrivacy: 2.9, financial: 4.0, compliance: 3.4 },
-    findings: 6, openFindings: 4,
-    subVendors: [],
-    spend: 0.9,
-  },
-  {
-    id: 'V-005', name: 'Fiserv Payment Gateway', category: 'Card Processing', tier: 1, country: 'USA',
-    riskScore: 35, riskLevel: 'medium', status: 'active', contractExpiry: '2028-03-31',
-    lastAssessment: '2026-01-15', nextAssessment: '2026-07-15',
-    concentration: 80, dataAccess: true, regulatoryApproved: true,
-    controls: { security: 4.3, bcp: 4.4, dataPrivacy: 4.1, financial: 4.6, compliance: 4.5 },
-    findings: 2, openFindings: 0,
-    subVendors: ['Visa Network', 'MasterCard Network'],
-    spend: 3.2,
-  },
-  {
-    id: 'V-006', name: 'Unisys Outsourced Data Center', category: 'IT Infrastructure', tier: 1, country: 'Egypt',
-    riskScore: 68, riskLevel: 'high', status: 'remediation', contractExpiry: '2026-06-30',
-    lastAssessment: '2025-11-05', nextAssessment: '2026-05-05',
-    concentration: 70, dataAccess: true, regulatoryApproved: false,
-    controls: { security: 2.8, bcp: 3.1, dataPrivacy: 2.5, financial: 3.8, compliance: 2.9 },
-    findings: 9, openFindings: 6,
-    subVendors: ['Schneider Electric', 'Cisco'],
-    spend: 5.6,
-  },
-]
+
 
 const riskColors = { low: '#2d7d46', medium: '#d4af37', high: '#b8860b', critical: '#c41e3a' }
 const statusCfg = {
@@ -105,9 +44,23 @@ function ConcentrationBar({ value, name }) {
 }
 
 export default function TPRMModule() {
+  const [vendors, setVendors] = useState([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [filterTier, setFilterTier] = useState('all')
   const [filterRisk, setFilterRisk] = useState('all')
+
+  useEffect(() => {
+    fetch('/api/tprm/vendors')
+      .then(r => r.json())
+      .then(data => setVendors(data.items || []))
+      .catch(err => console.error('Failed to fetch vendors:', err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return <div className="h-full p-6 text-center text-pharaoh-400/60 text-sm">Loading vendor data...</div>
+  }
 
   const filtered = vendors.filter(v =>
     (filterTier === 'all' || v.tier === Number(filterTier)) &&

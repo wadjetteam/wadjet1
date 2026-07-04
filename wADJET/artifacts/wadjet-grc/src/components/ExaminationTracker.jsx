@@ -1,42 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Clock, AlertTriangle, CheckCircle, ChevronRight, Plus, Filter, TrendingUp, FileSearch, Download } from 'lucide-react'
 import { downloadExaminationPDF, downloadExaminationCSV } from '../lib/downloadUtils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-
-const examinations = [
-  { id: 'EX-CBE-2026-01', title: 'CBE Full-Scope Examination 2026', examiner: 'Central Bank of Egypt', startDate: '2026-03-01', endDate: '2026-04-15', type: 'full-scope', status: 'completed', findings: 12 },
-  { id: 'EX-PCI-2026-01', title: 'PCI DSS QSA Annual Assessment', examiner: 'TrustWave QSA', startDate: '2026-05-01', endDate: '2026-06-30', type: 'targeted', status: 'in-progress', findings: 5 },
-  { id: 'EX-EXT-2026-01', title: 'External Audit — KPMG Financial Year 2025', examiner: 'KPMG Egypt', startDate: '2026-01-10', endDate: '2026-02-28', type: 'external-audit', status: 'completed', findings: 8 },
-  { id: 'EX-INT-2026-02', title: 'Internal Audit — Cybersecurity Controls', examiner: 'Internal Audit Dept', startDate: '2026-04-01', endDate: '2026-05-15', type: 'internal-audit', status: 'completed', findings: 6 },
-]
-
-const findings = [
-  { id: 'FND-2026-001', examId: 'EX-CBE-2026-01', title: 'Inadequate Segregation of Duties — Core Banking Admin Access', category: 'Access Control', type: 'MRA', severity: 'critical', status: 'open', owner: 'Nadia H.', dueDate: '2026-07-15', raised: '2026-04-15', description: 'CBE examiners identified that 4 system administrators have unrestricted access to production core banking without compensating controls. Dual approval is not enforced for critical parameter changes.', remediationPlan: 'Implement PAM solution (CyberArk) with session recording and dual-approval workflow for production access. Target: Q3 2026.', agingDays: 55, progressPct: 30 },
-  { id: 'FND-2026-002', examId: 'EX-CBE-2026-01', title: 'AML Transaction Monitoring Thresholds Below CBE Requirements', category: 'AML/CFT', type: 'MRA', severity: 'critical', status: 'in-progress', owner: 'Ahmed Abdullah', dueDate: '2026-06-30', raised: '2026-04-15', description: 'Automated transaction monitoring rules have not been updated since 2023. Three CBE-required scenarios are absent and alert thresholds are not calibrated to current risk appetite.', remediationPlan: 'Engage AML system vendor to implement 3 missing scenarios. Recalibrate thresholds against 2025 typologies. Board ALCO sign-off required.', agingDays: 55, progressPct: 65 },
-  { id: 'FND-2026-003', examId: 'EX-CBE-2026-01', title: 'Business Continuity Plan Not Tested for Cloud Workloads', category: 'Business Continuity', type: 'MRIA', severity: 'high', status: 'in-progress', owner: 'Laila M.', dueDate: '2026-09-30', raised: '2026-04-15', description: 'The 2025 BCP/DRP annual test did not include cloud-hosted workloads (digital banking platform). RTOs for critical services in cloud have not been validated.', remediationPlan: 'Conduct cloud failover simulation for digital banking platform. Update BCP documentation and retest with cloud DR environment.', agingDays: 55, progressPct: 40 },
-  { id: 'FND-2026-004', examId: 'EX-CBE-2026-01', title: 'Third-Party Risk Framework Lacks CBE Required Elements', category: 'Third-Party Risk', type: 'MRIA', severity: 'high', status: 'open', owner: 'Ahmed Abdullah', dueDate: '2026-08-31', raised: '2026-04-15', description: 'TPRM policy does not include required CBE Circular 7/2023 elements: concentration risk limits, exit strategies, and sub-contractor assessment requirements.', remediationPlan: 'Update TPRM policy and framework to incorporate all CBE circular requirements. Board approval required for updated policy.', agingDays: 55, progressPct: 20 },
-  { id: 'FND-2026-005', examId: 'EX-PCI-2026-01', title: 'Cardholder Data Scope Not Fully Defined in Data Flow Diagrams', category: 'Data Security', type: 'Requirement', severity: 'high', status: 'in-progress', owner: 'Tamer K.', dueDate: '2026-06-25', raised: '2026-05-15', description: 'PCI DSS Req 1.1.3: Network diagrams showing all connections to the cardholder data environment are incomplete. Three payment microservices are undocumented.', remediationPlan: 'QSA to validate updated network diagrams including all CDE connections and firewall rule sets.', agingDays: 25, progressPct: 75 },
-  { id: 'FND-2026-006', examId: 'EX-CBE-2026-01', title: 'Patch Management SLA Exceeded for Critical Systems', category: 'Vulnerability Management', type: 'MRIA', severity: 'high', status: 'open', owner: 'Karim S.', dueDate: '2026-07-01', raised: '2026-04-15', description: '14 critical patches on core banking servers have exceeded the 30-day patching SLA defined in CBE Cybersecurity Framework. No compensating controls documented.', remediationPlan: 'Emergency patching sprint for critical systems. Implement automated patch compliance dashboard.', agingDays: 55, progressPct: 50 },
-  { id: 'FND-2026-007', examId: 'EX-EXT-2026-01', title: 'IFRS 9 ECL Model Documentation Gaps', category: 'Credit Risk', type: 'Observation', severity: 'medium', status: 'in-progress', owner: 'Mona A.', dueDate: '2026-12-31', raised: '2026-02-28', description: 'External auditors noted that model documentation for IFRS 9 Expected Credit Loss calculation lacks sensitivity analysis and macroeconomic scenario justification.', remediationPlan: 'Finance team to update model documentation with full sensitivity analysis and governance sign-off from Model Risk Committee.', agingDays: 101, progressPct: 60 },
-  { id: 'FND-2026-008', examId: 'EX-INT-2026-02', title: 'Privileged Account Inventory Incomplete', category: 'Access Control', type: 'Action Point', severity: 'medium', status: 'closed', owner: 'Nadia H.', dueDate: '2026-05-31', raised: '2026-05-01', description: 'Internal audit found 23 active privileged accounts not in the official registry. Quarterly reconciliation process was not being followed.', remediationPlan: 'Completed: Full PAR reconciliation performed. 19 accounts deactivated, 4 backdated for re-approval.', agingDays: 39, progressPct: 100 },
-]
 
 const findingTypeColors = { MRA: '#c41e3a', MRIA: '#b8860b', Requirement: '#d4af37', Observation: '#4f7da6', 'Action Point': '#2d7d46' }
 const severityColors = { critical: '#c41e3a', high: '#b8860b', medium: '#d4af37', low: '#2d7d46' }
 const statusColors = { open: '#c41e3a', 'in-progress': '#d4af37', closed: '#2d7d46' }
 
-const agingData = [
-  { range: '0-30d', count: 2, fill: '#2d7d46' },
-  { range: '31-60d', count: 4, fill: '#d4af37' },
-  { range: '61-90d', count: 1, fill: '#b8860b' },
-  { range: '90d+', count: 1, fill: '#c41e3a' },
-]
-
 export default function ExaminationTracker() {
+  const [examinations, setExaminations] = useState([])
+  const [findings, setFindings] = useState([])
+  const [agingData, setAgingData] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedExam, setSelectedExam] = useState('all')
   const [filterSeverity, setFilterSeverity] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [expanded, setExpanded] = useState(null)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/examinations').then(r => r.json()),
+      fetch('/api/findings').then(r => r.json()),
+      fetch('/api/findings/aging').then(r => r.json()),
+    ]).then(([exams, fnds, aging]) => {
+      setExaminations(exams.items || [])
+      setFindings(fnds.items || [])
+      setAgingData(aging.items || [])
+    }).catch(err => console.error('Failed to fetch examination data:', err))
+    .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return <div className="h-full p-6 text-center text-pharaoh-400/60 text-sm">Loading examination data...</div>
+  }
 
   const filtered = findings.filter(f =>
     (selectedExam === 'all' || f.examId === selectedExam) &&

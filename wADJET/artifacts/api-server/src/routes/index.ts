@@ -6,10 +6,16 @@ import kpiCatalogRouter from "./kpi-catalog";
 import kriCatalogRouter from "./kri-catalog";
 import kpiMeasurementRouter from "./kpi-measurements";
 import kriMeasurementRouter from "./kri-measurements";
+import complianceRouter from "./compliance";
+import evidenceRouter from "./evidence";
+import automationRouter from "./automation";
 import breachEngineRouter from "./breach-engine";
 import metricMappingRouter from "./metric-mappings";
 import regulatoryReportingRouter from "./regulatory-reporting";
 import collectionEngineRouter from "./collection-engine";
+import riskControlMapRouter from "./risk-control-maps";
+import integrationsRouter from "./integrations";
+import bankingRouter from "./banking";
 
 const router: IRouter = Router();
 
@@ -20,9 +26,15 @@ router.use(kpiCatalogRouter);
 router.use(kriCatalogRouter);
 router.use(kpiMeasurementRouter);
 router.use(kriMeasurementRouter);
+router.use(complianceRouter);
+router.use(evidenceRouter);
+router.use(automationRouter);
 router.use(breachEngineRouter);
 router.use(metricMappingRouter);
 router.use(regulatoryReportingRouter);
 router.use(collectionEngineRouter);
+router.use(riskControlMapRouter);
+router.use(integrationsRouter);
+router.use(bankingRouter);
 
 export default router;

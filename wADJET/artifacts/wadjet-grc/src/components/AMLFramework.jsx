@@ -1,41 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell } from 'recharts'
 import { Shield, AlertTriangle, Eye, CheckCircle, Clock, Plus, Filter, TrendingUp, Flag, FileSearch, Download } from 'lucide-react'
 import { downloadAMLPDF, downloadAMLCSV } from '../lib/downloadUtils'
-
-const fatfRecommendations = [
-  { id: 'FATF-10', title: 'Customer Due Diligence (CDD)', category: 'Preventive Measures', status: 'compliant', risk: 'high', controls: 8, tested: 8, lastTest: '2026-03-01', gaps: 0, notes: 'Full KYC/EDD procedures in place. Ongoing monitoring active for all customer segments.' },
-  { id: 'FATF-11', title: 'Record Keeping', category: 'Preventive Measures', status: 'compliant', risk: 'medium', controls: 4, tested: 4, lastTest: '2026-02-15', gaps: 0, notes: '7-year retention policy enforced in DMS. Annual records audit completed.' },
-  { id: 'FATF-13', title: 'Correspondent Banking', category: 'Preventive Measures', status: 'partial', risk: 'high', controls: 6, tested: 5, lastTest: '2026-01-20', gaps: 1, notes: 'DE-risking framework updated. One non-sanctioned correspondent with elevated risk pending enhanced review.' },
-  { id: 'FATF-15', title: 'New Technologies (Crypto / VASP)', category: 'Preventive Measures', status: 'non-compliant', risk: 'critical', controls: 3, tested: 0, lastTest: null, gaps: 3, notes: 'No current VASP exposure. Policy framework being drafted per CBE 2024 crypto guidelines. Target: Q4 2026.' },
-  { id: 'FATF-16', title: 'Wire Transfers (Travel Rule)', category: 'Preventive Measures', status: 'partial', risk: 'high', controls: 5, tested: 4, lastTest: '2026-03-10', gaps: 1, notes: 'Travel Rule compliance for cross-border wires >$1000 implemented. Gaps in sub-threshold monitoring.' },
-  { id: 'FATF-20', title: 'Reporting of Suspicious Transactions (STR)', category: 'Reporting', status: 'compliant', risk: 'critical', controls: 7, tested: 7, lastTest: '2026-04-01', gaps: 0, notes: 'EMLCU reporting pipeline fully operational. Average STR filing time: 18 hours post-detection.' },
-  { id: 'FATF-29', title: 'Financial Intelligence Units (FIU Integration)', category: 'Institutional Measures', status: 'compliant', risk: 'high', controls: 4, tested: 4, lastTest: '2026-04-10', gaps: 0, notes: 'EMLCU data exchange gateway active. Annual FIU feedback loop review completed.' },
-  { id: 'FATF-26', title: 'Regulation & Supervision of Financial Institutions', category: 'Institutional Measures', status: 'compliant', risk: 'medium', controls: 5, tested: 5, lastTest: '2026-02-28', gaps: 0, notes: 'Full CBE AML supervision framework implemented. Last supervisory review: Feb 2026.' },
-]
-
-const sarData = [
-  { month: 'Jan', filed: 12, rejected: 1, pending: 2 },
-  { month: 'Feb', filed: 9, rejected: 0, pending: 1 },
-  { month: 'Mar', filed: 15, rejected: 2, pending: 3 },
-  { month: 'Apr', filed: 11, rejected: 1, pending: 4 },
-  { month: 'May', filed: 18, rejected: 0, pending: 2 },
-]
-
-const kycExceptions = [
-  { id: 'KYC-2026-011', customer: 'Corporate Client — Al Nour Trading Co.', risk: 'high', issue: 'Beneficial Ownership — UBO >25% not verified', owner: 'Mona A.', raised: '2026-05-10', due: '2026-06-25', status: 'in-progress' },
-  { id: 'KYC-2026-008', customer: 'PEP Customer — Ref #EPB4421', risk: 'critical', issue: 'EDD not completed within 30-day SLA for Politically Exposed Person', owner: 'Ahmed Abdullah', raised: '2026-04-20', due: '2026-05-20', status: 'overdue' },
-  { id: 'KYC-2026-005', customer: 'Correspondent Bank — BTA International', risk: 'high', issue: 'Annual correspondent bank review overdue by 45 days', owner: 'Karim S.', raised: '2026-03-15', due: '2026-04-15', status: 'overdue' },
-  { id: 'KYC-2026-003', customer: 'SME Cluster — Construction Sector', risk: 'medium', issue: 'Sector re-rating review pending due to elevated ML typology risk', owner: 'Laila M.', raised: '2026-03-01', due: '2026-07-31', status: 'open' },
-]
-
-const highRiskSegments = [
-  { segment: 'Politically Exposed Persons (PEPs)', count: 47, edd: 47, pending: 2, risk: 'critical' },
-  { segment: 'Non-Resident Foreign Nationals', count: 312, edd: 298, pending: 14, risk: 'high' },
-  { segment: 'Cash-Intensive Businesses', count: 189, edd: 175, pending: 14, risk: 'high' },
-  { segment: 'Correspondent Banks', count: 23, edd: 22, pending: 1, risk: 'high' },
-  { segment: 'NGOs / Charitable Organizations', count: 34, edd: 31, pending: 3, risk: 'medium' },
-]
 
 const statusColors = { compliant: '#2d7d46', partial: '#d4af37', 'non-compliant': '#c41e3a' }
 const riskColors = { critical: '#c41e3a', high: '#b8860b', medium: '#d4af37', low: '#2d7d46' }
@@ -60,6 +26,30 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function AMLFramework() {
   const [activeTab, setActiveTab] = useState('fatf')
   const [expanded, setExpanded] = useState(null)
+  const [fatfRecommendations, setFatfRecommendations] = useState([])
+  const [sarData, setSarData] = useState([])
+  const [kycExceptions, setKycExceptions] = useState([])
+  const [highRiskSegments, setHighRiskSegments] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/aml/fatf-recommendations').then(r => r.json()),
+      fetch('/api/aml/sar-data').then(r => r.json()),
+      fetch('/api/aml/kyc-exceptions').then(r => r.json()),
+      fetch('/api/aml/high-risk-segments').then(r => r.json()),
+    ]).then(([fatf, sar, kyc, segments]) => {
+      setFatfRecommendations(fatf.items || [])
+      setSarData(sar.items || [])
+      setKycExceptions(kyc.items || [])
+      setHighRiskSegments(segments.items || [])
+    }).catch(err => console.error('Failed to fetch AML data:', err))
+    .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return <div className="h-full p-6 text-center text-pharaoh-400/60 text-sm">Loading AML data...</div>
+  }
 
   const compliant = fatfRecommendations.filter(r => r.status === 'compliant').length
   const partial = fatfRecommendations.filter(r => r.status === 'partial').length

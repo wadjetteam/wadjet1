@@ -1,29 +1,19 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { LayoutDashboard, Shield, AlertTriangle, FileCheck, Bot, Eye, EyeOff, Clock, Settings, Sun, Moon, Wifi, UserCheck, ClipboardList, ChevronDown, Target, Zap, BarChart2, Calendar, Database, Link, FileSearch, FileText, Flag, TrendingUp, Activity, Filter, Search, Unlink } from 'lucide-react'
-import Dashboard from './components/Dashboard'
-import ComplianceEngine from './components/ComplianceEngine'
-import RiskHub from './components/RiskHub'
+import { LayoutDashboard, Shield, AlertTriangle, FileCheck, Bot, Eye, EyeOff, Clock, Settings, Sun, Moon, Wifi, UserCheck, ClipboardList, ChevronDown, BarChart2, Calendar, Database, Flag, TrendingUp } from 'lucide-react'
+import UnifiedDashboards from './containers/UnifiedDashboards'
+import KpiMetricsHub from './containers/KpiMetricsHub'
+import ComplianceHub from './containers/ComplianceHub'
+import RiskRemediationCenter from './containers/RiskRemediationCenter'
+import CapitalAdequacyHub from './containers/CapitalAdequacyHub'
+import CBEDeadlinesHub from './containers/CBEDeadlinesHub'
+import OperationalRiskHub from './containers/OperationalRiskHub'
+import AMLExecutivePack from './containers/AMLExecutivePack'
 import PolicyPortal from './components/PolicyPortal'
 import GRCManagement from './components/GRCManagement'
-import AICopilot from './components/AICopilot'
-import SessionTimeoutModal from './components/SessionTimeoutModal'
-import CISOApprovals from './components/CISOApprovals'
 import IntegrationsHub from './components/IntegrationsHub'
 import AuditLogViewer from './components/AuditLogViewer'
-import GapAssessment from './components/GapAssessment'
-import FollowUpWorkspace from './components/FollowUpWorkspace'
-import BaselCapitalDashboard from './components/BaselCapitalDashboard'
-import RegulatoryCalendar from './components/RegulatoryCalendar'
-import LossEventDatabase from './components/LossEventDatabase'
-import TPRMModule from './components/TPRMModule'
-import ExaminationTracker from './components/ExaminationTracker'
-import BoardPackGenerator from './components/BoardPackGenerator'
-import AMLFramework from './components/AMLFramework'
-import ExecutiveDashboard from './pages/ExecutiveDashboard'
-import CRODashboard from './pages/CRODashboard'
-import ComplianceTracker from './pages/ComplianceTracker'
-import MetricRiskMapper from './components/MetricRiskMapper'
-import RemediationWorkspace from './components/RemediationWorkspace'
+import AICopilot from './components/AICopilot'
+import SessionTimeoutModal from './components/SessionTimeoutModal'
 import { GRCProvider } from './context/GRCContext'
 
 const MOCK_USER = { id: 'USR-A7X3K9', name: 'Ahmed Abdullah', role: 'Senior Compliance Officer', ip: '10.88.142.37', dept: 'Risk & Compliance Division' }
@@ -41,30 +31,22 @@ const navGroups = [
     label: 'Core GRC',
     color: 'rgba(212,168,50,0.50)',
     items: [
-      { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, desc: 'Governance overview', roles: ['employee', 'compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'executive-board', label: 'Board View', icon: TrendingUp, desc: 'Risk appetite & violations', roles: ['executive', 'compliance-officer', 'ciso', 'auditor'] },
-      { id: 'cro-dashboard', label: 'CRO Dashboard', icon: Activity, desc: 'Heat map & KRI trends', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'compliance-tracker', label: 'Compliance Tracker', icon: Filter, desc: 'Audit & evidence', roles: ['compliance-officer', 'ciso', 'auditor'] },
-      { id: 'compliance-engine', label: 'Compliance Engine', icon: Shield, desc: 'Cross-framework mapping', roles: ['compliance-officer', 'ciso', 'auditor'] },
-      { id: 'risk-hub', label: 'Risk & Vulnerability Hub', icon: AlertTriangle, desc: 'Threat management', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'metric-mapper', label: 'Metric-Risk Mapper', icon: Link, desc: 'Associate KPIs/KRIs to risks', roles: ['compliance-officer', 'ciso', 'auditor'] },
-      { id: 'remediation-workspace', label: 'Remediation Workspace', icon: Shield, desc: 'Breach tasks & escalation', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'gap-assessment', label: 'Gap Assessment', icon: Target, desc: 'Maturity scoring', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'follow-up', label: 'Follow-Up Workspace', icon: Zap, desc: 'Remediation tasks', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'unified-dashboards', label: 'Unified Dashboards', icon: LayoutDashboard, desc: 'Executive · Board · CRO', roles: ['employee', 'compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'kpi-metrics-hub', label: 'KPIs & Metrics', icon: BarChart2, desc: 'Library · Risk Mapper', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'compliance-hub', label: 'Compliance Hub', icon: Shield, desc: 'Engine · Gap Assessment', roles: ['compliance-officer', 'ciso', 'auditor'] },
+      { id: 'risk-remediation-center', label: 'Risk & Remediation', icon: AlertTriangle, desc: 'Risk Hub · Breach Tasks', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
       { id: 'policy-portal', label: 'Policy & Attestation', icon: FileCheck, desc: 'Digital sign-off', roles: ['employee', 'compliance-officer', 'ciso', 'auditor'] },
+      { id: 'integrations-hub', label: 'Integrations Hub', icon: Wifi, desc: 'System sync', roles: ['ciso', 'auditor'] },
     ],
   },
   {
     label: 'Banking Modules',
     color: 'rgba(212,168,50,0.35)',
     items: [
-      { id: 'basel-capital', label: 'Basel III/IV Capital', icon: BarChart2, desc: 'CET1 · Tier1 · LCR · RWA', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'regulatory-calendar', label: 'CBE Regulatory Calendar', icon: Calendar, desc: 'Submissions & deadlines', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'loss-events', label: 'Loss Event Database', icon: Database, desc: 'OpRisk · Basel categories', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'tprm', label: 'Third-Party Risk (TPRM)', icon: Link, desc: 'Vendor risk · Concentration', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'examination-tracker', label: 'Examination Tracker', icon: FileSearch, desc: 'MRA/MRIA · CBE findings', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
-      { id: 'board-pack', label: 'Board Pack Generator', icon: FileText, desc: 'ALCO · Risk committee', roles: ['compliance-officer', 'ciso', 'executive'] },
-      { id: 'aml-framework', label: 'AML / Financial Crime', icon: Flag, desc: 'FATF · STR · KYC', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'capital-adequacy-hub', label: 'Capital & Reporting', icon: TrendingUp, desc: 'Basel III · Regulatory', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'cbe-deadlines-hub', label: 'CBE Deadlines', icon: Calendar, desc: 'Calendar · Exams', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'operational-risk-hub', label: 'Operational Risk', icon: Database, desc: 'Loss Events · TPRM', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
+      { id: 'aml-executive-pack', label: 'AML & Executive Pack', icon: Flag, desc: 'AML · Board Packs', roles: ['compliance-officer', 'ciso', 'auditor', 'executive'] },
     ],
   },
   {
@@ -72,8 +54,6 @@ const navGroups = [
     color: 'rgba(212,168,50,0.25)',
     items: [
       { id: 'grc-management', label: 'GRC Management', icon: Settings, desc: 'Administration', roles: ['compliance-officer', 'ciso'] },
-      { id: 'ciso-approvals', label: 'CISO Approvals', icon: Eye, desc: 'Override queue', roles: ['ciso'] },
-      { id: 'integrations', label: 'Integrations Hub', icon: Wifi, desc: 'System sync', roles: ['ciso', 'auditor'] },
       { id: 'audit-log', label: 'Audit Log Viewer', icon: ClipboardList, desc: 'Immutable trail', roles: ['auditor'] },
     ],
   },
@@ -83,7 +63,7 @@ const allNavItems = navGroups.flatMap(g => g.items)
 
 
 export default function App() {
-  const [activeView, setActiveView] = useState('dashboard')
+  const [activeView, setActiveView] = useState('unified-dashboards')
   const [copilotOpen, setCopilotOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [auditorMode, setAuditorMode] = useState(false)
@@ -91,12 +71,17 @@ export default function App() {
   const [isLoggedOut, setIsLoggedOut] = useState(false)
   const [currentRole, setCurrentRole] = useState('compliance-officer')
   const [showRoleDropdown, setShowRoleDropdown] = useState(false)
+  const [risksData, setRisksData] = useState([])
   const [darkMode, setDarkMode] = useState(() => {
     try { return localStorage.getItem('wadjet-theme') !== 'light' } catch { return true }
   })
   const inactivityTimerRef = useRef(null)
   const timeoutWarningRef = useRef(null)
   const lastActivityRef = useRef(Date.now())
+
+  useEffect(() => {
+    fetch('/api/risks').then(r => r.json()).then(d => setRisksData(d.risks || [])).catch(() => {})
+  }, [])
 
   const navItems = allNavItems.filter(item => item.roles.includes(currentRole))
   const roleLabel = roles.find(r => r.id === currentRole)?.label || 'Compliance Officer'
@@ -185,7 +170,7 @@ export default function App() {
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-4" style={{ padding: '3px' }}>
               <img src="/logo.png" alt="Wadjet GRC Logo"
-                className={`${sidebarCollapsed ? 'h-10 w-10' : 'h-[88px] w-[88px]'} mx-auto object-contain transition-all duration-300`}
+                className={`${sidebarCollapsed ? 'h-10 w-10' : 'h-[110px] w-[110px]'} mx-auto object-contain transition-all duration-300`}
                 onError={(e) => { e.target.src = '/logo.svg'; e.onerror = null }} />
               <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#d4a832]" />
             </div>
@@ -431,28 +416,18 @@ export default function App() {
 
         {/* ── PAGE CONTENT ── */}
         <div className="flex-1 overflow-hidden">
-          {activeView === 'dashboard' && <Dashboard auditorMode={auditorMode} />}
-          {activeView === 'executive-board' && <ExecutiveDashboard />}
-          {activeView === 'cro-dashboard' && <CRODashboard />}
-          {activeView === 'compliance-tracker' && <ComplianceTracker />}
-          {activeView === 'compliance-engine' && <ComplianceEngine auditorMode={auditorMode} />}
-          {activeView === 'risk-hub' && <RiskHub auditorMode={auditorMode} />}
-          {activeView === 'metric-mapper' && <MetricRiskMapper />}
-          {activeView === 'remediation-workspace' && <RemediationWorkspace />}
-          {activeView === 'gap-assessment' && <GapAssessment />}
-          {activeView === 'follow-up' && <FollowUpWorkspace />}
+          {activeView === 'unified-dashboards' && <UnifiedDashboards auditorMode={auditorMode} />}
+          {activeView === 'kpi-metrics-hub' && <KpiMetricsHub />}
+          {activeView === 'compliance-hub' && <ComplianceHub auditorMode={auditorMode} />}
+          {activeView === 'risk-remediation-center' && <RiskRemediationCenter auditorMode={auditorMode} />}
           {activeView === 'policy-portal' && <PolicyPortal auditorMode={auditorMode} />}
+          {activeView === 'integrations-hub' && <IntegrationsHub />}
+          {activeView === 'capital-adequacy-hub' && <CapitalAdequacyHub />}
+          {activeView === 'cbe-deadlines-hub' && <CBEDeadlinesHub />}
+          {activeView === 'operational-risk-hub' && <OperationalRiskHub />}
+          {activeView === 'aml-executive-pack' && <AMLExecutivePack />}
           {activeView === 'grc-management' && <GRCManagement auditorMode={auditorMode} />}
-          {activeView === 'ciso-approvals' && <CISOApprovals role={currentRole} />}
-          {activeView === 'integrations' && <IntegrationsHub />}
           {activeView === 'audit-log' && <AuditLogViewer />}
-          {activeView === 'basel-capital' && <BaselCapitalDashboard />}
-          {activeView === 'regulatory-calendar' && <RegulatoryCalendar />}
-          {activeView === 'loss-events' && <LossEventDatabase />}
-          {activeView === 'tprm' && <TPRMModule />}
-          {activeView === 'examination-tracker' && <ExaminationTracker />}
-          {activeView === 'board-pack' && <BoardPackGenerator />}
-          {activeView === 'aml-framework' && <AMLFramework />}
         </div>
       </main>
 

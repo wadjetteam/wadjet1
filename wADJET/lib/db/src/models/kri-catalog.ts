@@ -1,4 +1,5 @@
-import { getCollection, type MemoryCollection } from "../memory-store";
+import { getCollection } from "../memory-store";
+import type { StoreCollection } from "../store-types";
 
 export interface IKriCatalog {
   _id?: string;
@@ -22,7 +23,7 @@ export interface IKriCatalog {
   updatedAt: string;
 }
 
-const collection: MemoryCollection<IKriCatalog> = getCollection<IKriCatalog>("kri_catalog");
+const collection: StoreCollection<IKriCatalog> = getCollection<IKriCatalog>("kri_catalog");
 
 export const KriCatalog = {
   find: (filter?: Partial<IKriCatalog>) => collection.find(filter),

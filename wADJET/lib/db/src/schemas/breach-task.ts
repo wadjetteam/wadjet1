@@ -7,6 +7,7 @@ export const insertBreachTaskSchema = z.object({
   deptHeadId: z.string().optional().default(""),
   croId: z.string().optional().default(""),
   ceoId: z.string().optional().default(""),
+  breachType: z.enum(["cyber", "operational", "compliance"]).default("operational"),
   escalationLevel: z.enum(["Level0_Owner", "Level1_DeptHead", "Level2_CRO_CEO"]).default("Level0_Owner"),
   title: z.string().max(255),
   description: z.string().optional().default(""),

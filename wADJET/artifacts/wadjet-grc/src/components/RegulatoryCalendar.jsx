@@ -1,19 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Calendar, Clock, CheckCircle, AlertTriangle, FileText, Upload, ChevronRight, Bell, Filter, Download } from 'lucide-react'
 import { downloadRegulatoryCalendarPDF, downloadRegulatoryCalendarCSV } from '../lib/downloadUtils'
-
-const submissions = [
-  { id: 'CBE-Q2-001', title: 'CBE Capital Adequacy Report (CAR)', framework: 'CBE Circular 7/2015', frequency: 'Quarterly', due: '2026-07-15', status: 'pending', priority: 'critical', owner: 'Ahmed Abdullah', evidence: 0, desc: 'Quarterly regulatory capital adequacy submission including CET1, Tier 1, Total Capital ratios and RWA breakdown.' },
-  { id: 'CBE-Q2-002', title: 'Anti-Money Laundering Activity Report', framework: 'CBE AML Directive 2022', frequency: 'Quarterly', due: '2026-07-10', status: 'in-progress', priority: 'critical', owner: 'Mona A.', evidence: 3, desc: 'Quarterly AML activity report including STR count, KYC exceptions, and high-risk customer review outcomes.' },
-  { id: 'CBE-Q2-003', title: 'Liquidity Coverage Ratio (LCR) Report', framework: 'Basel III / CBE', frequency: 'Monthly', due: '2026-06-30', status: 'submitted', priority: 'high', owner: 'Karim S.', evidence: 5, desc: 'Monthly LCR disclosure to CBE showing HQLA levels and 30-day stressed net cash outflows.' },
-  { id: 'CBE-Q2-004', title: 'SWIFT CSP Attestation 2026', framework: 'SWIFT Customer Security Programme', frequency: 'Annual', due: '2026-09-30', status: 'pending', priority: 'high', owner: 'Nadia H.', evidence: 1, desc: 'Annual self-attestation against SWIFT CSP mandatory controls (v2026). All 23 mandatory controls must be confirmed.' },
-  { id: 'CBE-Q2-005', title: 'Operational Risk Loss Data Report', framework: 'Basel III Pillar 2', frequency: 'Quarterly', due: '2026-07-20', status: 'pending', priority: 'medium', owner: 'Tamer K.', evidence: 0, desc: 'Quarterly submission of operational loss event data to CBE including root cause analysis for material losses.' },
-  { id: 'CBE-Q2-006', title: 'ICAAP Annual Submission', framework: 'Basel III Pillar 2', frequency: 'Annual', due: '2026-12-31', status: 'not-started', priority: 'high', owner: 'Ahmed Abdullah', evidence: 0, desc: 'Annual Internal Capital Adequacy Assessment Process document submitted to CBE for supervisory review (SREP).' },
-  { id: 'CBE-Q2-007', title: 'PCI DSS Annual Report on Compliance', framework: 'PCI DSS v4.0', frequency: 'Annual', due: '2026-08-15', status: 'in-progress', priority: 'high', owner: 'Laila M.', evidence: 7, desc: 'Annual ROC (Report on Compliance) or SAQ from QSA covering all 12 PCI DSS v4.0 requirements for card data environment.' },
-  { id: 'CBE-Q2-008', title: 'Net Stable Funding Ratio (NSFR)', framework: 'Basel III / CBE', frequency: 'Quarterly', due: '2026-07-15', status: 'pending', priority: 'medium', owner: 'Karim S.', evidence: 2, desc: 'Quarterly NSFR calculation and CBE disclosure per Basel III liquidity standards.' },
-  { id: 'CBE-Q2-009', title: 'Cybersecurity Maturity Assessment', framework: 'CBE Cybersecurity Framework 2021', frequency: 'Annual', due: '2026-10-31', status: 'not-started', priority: 'medium', owner: 'Nadia H.', evidence: 0, desc: 'Annual self-assessment and independent audit against CBE Cybersecurity Framework 5 domains.' },
-  { id: 'CBE-Q2-010', title: 'Large Exposures Concentration Report', framework: 'CBE Circular 4/2019', frequency: 'Monthly', due: '2026-06-25', status: 'submitted', priority: 'medium', owner: 'Ahmed R.', evidence: 4, desc: 'Monthly report of exposures exceeding 10% of eligible capital to single counterparties or groups.' },
-]
 
 const statusConfig = {
   submitted:    { label: 'Submitted',    color: '#2d7d46', bg: 'rgba(45,125,70,0.12)',   icon: CheckCircle },
@@ -32,9 +19,21 @@ function daysUntil(dateStr) {
 }
 
 export default function RegulatoryCalendar() {
+  const [submissions, setSubmissions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
+
+  useEffect(() => {
+    fetch('/api/regulatory-calendar/submissions')
+      .then(r => r.json())
+      .then(data => setSubmissions(data.items || []))
+      .catch(err => console.error('Failed to fetch submissions:', err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return <div className="h-full flex items-center justify-center"><span className="text-pharaoh-400/60">Loading submissions...</span></div>
 
   const filtered = submissions.filter(s =>
     (filterStatus === 'all' || s.status === filterStatus) &&

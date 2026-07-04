@@ -1,4 +1,5 @@
-import { getCollection, type MemoryCollection } from "../memory-store";
+import { getCollection } from "../memory-store";
+import type { StoreCollection } from "../store-types";
 
 export interface IMetricMapping {
   _id?: string;
@@ -9,7 +10,7 @@ export interface IMetricMapping {
   createdAt: string;
 }
 
-const collection: MemoryCollection<IMetricMapping> = getCollection<IMetricMapping>("metric_mappings");
+const collection: StoreCollection<IMetricMapping> = getCollection<IMetricMapping>("metric_mappings");
 
 export const MetricMapping = {
   find: (filter?: Partial<IMetricMapping>) => collection.find(filter),

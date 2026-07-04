@@ -1,4 +1,4 @@
-import { Risk } from "@workspace/db";
+import { Risk, calcRiskScore, scoreToLevel } from "@workspace/db";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -19,7 +19,7 @@ async function main() {
     return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
   };
 
-  const risks = rows.map((r: any) => ({
+  const baseRisks = rows.map((r: any) => ({
     riskId: String(r[0] ?? ""),
     process: String(r[1] ?? ""),
     subProcess: String(r[2] ?? ""),
@@ -31,7 +31,8 @@ async function main() {
     severity: String(r[8] ?? ""),
     riskTitle: String(r[9] ?? ""),
     riskDescription: String(r[10] ?? ""),
-    riskRef: String(r[11] ?? ""),
+    riskDate: excelDateToISO(r[11]) || String(r[11] ?? ""),
+    riskRef: "",
     likelihood: Number(r[12]) || 1,
     impactFinance: Number(r[13]) || 1,
     impactRegulatory: Number(r[14]) || 1,
@@ -41,9 +42,6 @@ async function main() {
     impactC: Number(r[18]) || 1,
     impactI: Number(r[19]) || 1,
     impactA: Number(r[20]) || 1,
-    overallScore: Number(r[21]) || 0,
-    riskScore: Number(r[22]) || 0,
-    inherentLevel: String(r[23] ?? ""),
     existingControls: String(r[24] ?? "").replace(/\r\n/g, "; "),
     residualScore: Number(r[25]) || 0,
     overallRisk: String(r[26] ?? ""),
@@ -53,6 +51,12 @@ async function main() {
     deadline: excelDateToISO(r[30]),
     owner: String(r[31] ?? ""),
   }));
+
+  const risks = baseRisks.map(r => {
+    const score = calcRiskScore(r);
+    const level = scoreToLevel(score);
+    return { ...r, overallScore: score, riskScore: score, inherentLevel: level };
+  });
 
   console.log(`Seeding ${risks.length} risks...`);
 

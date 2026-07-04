@@ -1,57 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FileText, Download, Eye, CheckSquare, Square, Printer, BarChart2 } from 'lucide-react'
 import { downloadBoardPackPDF } from '../lib/downloadUtils'
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts'
-
-const packTemplates = [
-  { id: 'board-risk', name: 'Board Risk Committee Pack', audience: 'Board of Directors', frequency: 'Quarterly', sections: ['Executive Summary', 'Capital Adequacy', 'Risk Dashboard', 'Regulatory Findings', 'AML/CFT Update', 'Cyber Risk', 'Top 10 Risks'] },
-  { id: 'alco', name: 'ALCO Report', audience: 'Asset & Liability Committee', frequency: 'Monthly', sections: ['Liquidity Position', 'LCR/NSFR', 'Capital Ratios', 'Interest Rate Risk', 'FX Exposure', 'Funding Profile'] },
-  { id: 'risk-committee', name: 'Executive Risk Committee', audience: 'Executive Management', frequency: 'Monthly', sections: ['KRI Dashboard', 'Operational Risk Events', 'Compliance Status', 'Open Findings', 'TPRM Update', 'Cybersecurity Incidents'] },
-  { id: 'cbe-governor', name: 'CBE Governor Meeting Pack', audience: 'Central Bank of Egypt', frequency: 'Quarterly', sections: ['Bank Overview', 'Capital Adequacy', 'Liquidity Metrics', 'Compliance Posture', 'Remediation Status', 'Forward Look'] },
-]
-
-const maturityRadar = [
-  { subject: 'Governance', score: 3.8, target: 4.5 },
-  { subject: 'Risk Mgmt', score: 3.2, target: 4.5 },
-  { subject: 'Compliance', score: 4.1, target: 4.5 },
-  { subject: 'Cyber', score: 3.0, target: 4.5 },
-  { subject: 'BCP/DR', score: 3.5, target: 4.5 },
-  { subject: 'AML/CFT', score: 3.7, target: 4.5 },
-]
-
-const top10Risks = [
-  { rank: 1, title: 'Cybersecurity / Ransomware Attack', inherent: 80, residual: 52, trend: 'up' },
-  { rank: 2, title: 'Core Banking System Failure', inherent: 72, residual: 40, trend: 'stable' },
-  { rank: 3, title: 'AML Regulatory Breach', inherent: 75, residual: 48, trend: 'up' },
-  { rank: 4, title: 'Data Privacy Violation (Law 151)', inherent: 60, residual: 38, trend: 'stable' },
-  { rank: 5, title: 'Third-Party Concentration Risk', inherent: 65, residual: 50, trend: 'up' },
-]
-
-const kris = [
-  { label: 'Compliance Score', value: '94.7%', target: '≥ 95%', status: 'warning', trend: '+2.3%' },
-  { label: 'CET1 Capital Ratio', value: '13.2%', target: '≥ 7.0%', status: 'green', trend: '+0.2%' },
-  { label: 'LCR', value: '138%', target: '≥ 100%', status: 'green', trend: '+4%' },
-  { label: 'Open Critical Findings', value: '2', target: '= 0', status: 'red', trend: '-1' },
-  { label: 'Overdue Remediations', value: '1', target: '= 0', status: 'red', trend: '0' },
-  { label: 'Operational Losses (YTD)', value: 'EGP 4.05M', target: '< EGP 6M', status: 'green', trend: '+680K' },
-]
 
 const statusDot = { green: '#0dbfa8', warning: '#d4af37', red: '#c41e3a' }
 const statusPrint = { green: '#0a7a3c', warning: '#8a6800', red: '#c41e3a' }
 
 export default function BoardPackGenerator() {
   const [selectedTemplate, setSelectedTemplate] = useState('board-risk')
-  const [selectedSections, setSelectedSections] = useState(packTemplates[0].sections)
+  const [selectedSections, setSelectedSections] = useState([])
   const [generating, setGenerating] = useState(false)
   const [printing, setPrinting] = useState(false)
   const [preview, setPreview] = useState(false)
   const [period, setPeriod] = useState('Q2 2026')
+  const [packTemplates, setPackTemplates] = useState([])
+  const [maturityRadar, setMaturityRadar] = useState([])
+  const [top10Risks, setTop10Risks] = useState([])
+  const [kris, setKris] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/board-pack/templates').then(r => r.json()),
+      fetch('/api/board-pack/kris').then(r => r.json()),
+      fetch('/api/board-pack/risks').then(r => r.json()),
+      fetch('/api/board-pack/maturity').then(r => r.json()),
+    ]).then(([temps, kriData, risks, mat]) => {
+      setPackTemplates(temps.items || [])
+      setKris(kriData.items || [])
+      setTop10Risks(risks.items || [])
+      setMaturityRadar(mat.items || [])
+    }).catch(err => console.error('Failed to fetch board pack data:', err))
+    .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (packTemplates.length > 0 && selectedSections.length === 0) {
+      setSelectedSections(packTemplates[0].sections || [])
+    }
+  }, [packTemplates])
 
   const template = packTemplates.find(t => t.id === selectedTemplate)
 
+  if (loading) {
+    return <div className="h-full p-6 text-center text-pharaoh-400/60 text-sm">Loading board pack data...</div>
+  }
+
   const handleTemplateChange = (id) => {
     setSelectedTemplate(id)
-    setSelectedSections(packTemplates.find(t => t.id === id)?.sections || [])
+    const t = packTemplates.find(t => t.id === id)
+    setSelectedSections(t?.sections || [])
     setPreview(false)
   }
 

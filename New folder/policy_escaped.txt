@@ -1,0 +1,130 @@
+[THE BANK LOGO / NAME]
+INFORMATION SECURITY MANAGEMENT SYSTEM (ISMS)
+Access Control Policy
+DOCUMENT CONTROL & APPROVALS
+DOCUMENT REVISION HISTORY
+1.  Purpose & Scope
+This policy defines the mandatory requirements for establishing, implementing, and maintaining access controls within [The Bank]. The primary objective is to prevent unauthorized access to banking information assets, infrastructure, and the Customer Data Environment (CDE), while adopting Zero Trust principles and Defense-in-Depth strategies.
+This policy applies to all on-premises, hybrid, and cloud-hosted systems processing or storing Bank or customer data, and governs all employees, contractors, third-party vendors, and any entity accessing the Bank's systems, networks, applications, and cloud environments.
+Compliance is maintained in strict alignment with ISO/IEC 27001:2022, PCI-DSS v4.0, and Central Bank of Egypt (CBE) regulations.
+2.  Policy Statement & Core Principles
+2.1.  Least Privilege & Need-to-Know
+Access rights are strictly limited to authorized personnel based on documented business needs.
+The principle of Least Privilege shall be enforced across all systems.
+Access must adhere to the "Need-to-Know" principle.
+All access rights shall be governed by a formally approved Access Control Matrix (ACM).
+2.2.  Separation of Duties & Dual Control (Maker-Checker)
+Strict Separation of Duties (SoD) and Dual Control / Maker-Checker must be enforced for all critical operations and financial transactions.
+2.3.  Role-Based Access Control (RBAC)
+RBAC shall be deployed across all systems.
+Permissions are bound to job roles/functions, not individuals.
+Changes to role templates require approval from the line manager and Information Security Department.
+3.  Account Provisioning and Management
+3.1.  Onboarding & Provisioning
+Access requests follow the Joiner-Mover-Leaver (JML) lifecycle via approved IAM tools.
+Mandatory prerequisites: Cybersecurity awareness training + formal acknowledgment of security policies.
+3.2.  User Identifications (IDs)
+Unique, non-shared Employee IDs are mandatory.
+Shared, generic, or group accounts are strictly prohibited for interactive access.
+Service and machine accounts must follow least privilege and be assigned to system owners.
+3.3.  Formal Access Approval Process
+All access requires approval from System Owner and Information Security Department.
+3.4.  Deprovisioning & Immediate Revocation (CBE & PCI Aligned)
+Termination/Suspension (Leaver phase): Access rights must be revoked immediately, and under no circumstances shall revocation exceed two (2) hours from the official termination time. In case of technical limitations, manual revocation must be completed within 2 hours with documented justification and CISO notification.
+Role Changes (Mover phase): Unneeded access must be removed within the same business day.
+Inactive accounts: Disabled after 90 days of non-use; permanently deleted/archived after 180 days.
+Pre-Deletion Notification: The IT Operations Department must notify the employee's Line Manager and HR at least fifteen (15) calendar days prior to permanent deletion of any dormant account, to confirm the account is no longer required.
+Reactivation of disabled accounts requires manager approval + multi-factor identity verification.
+3.5.  Temporary, Emergency, and Service Account Management
+Temporary access must have explicit expiration dates and automatic revocation.
+Emergency "Break-Glass" accounts shall be monitored in real-time with immediate alerts.
+Just-In-Time (JIT) access is encouraged for privileged operations where technically feasible.
+3.6.  Vendor and Third-Party Access Management
+Vendors receive unique IDs with time-bound access, least privilege, and continuous monitoring.
+Access is revoked immediately upon contract end.
+4.  Identification & Authentication Standards
+4.1.  Multi-Factor Authentication (MFA)
+MFA is mandatory for all access to corporate systems, production environments, cloud platforms, and CDE (internal or remote).
+Remote and administrative access must enforce MFA without bypass capability.
+Factors: Something you know + Something you have or Something you are.
+4.2.  Password Complexity Requirements
+The Bank enforces the following Active Directory rules:
+4.3.  Invalid Password Lockouts
+Lockout after 6 consecutive invalid attempts.
+Lockout duration: Minimum 30 minutes or manual reset by authorized administrator.
+5.  Privileged Access Management (PAM)
+Privileged users must use dedicated admin accounts.
+All privileged credentials managed in a central Password Vault with automated rotation. Privileged account passwords must be rotated at least every sixty (60) days, or immediately upon suspected compromise or personnel change. In the event of a Password Vault outage, emergency access procedures must be invoked, documented, and reported to the CISO within four (4) hours.
+Real-time session monitoring and recording for all privileged sessions.
+Administrative actions logged to SIEM.
+6.  Access Reviews and Audits
+Standard & CDE access: Quarterly review.
+Privileged access: Monthly review.
+Formal recertification by Department Managers and System Owners.
+Records retained for 5 years.
+7.  Remote Access & Perimeter Security
+7.1.  Remote Access Control
+Remote access restricted to business-justified cases and must use MFA + encrypted VPN (IPSec or TLS 1.3) + Bastion Hosts.
+7.2.  Device Restrictions
+Only corporate-managed devices are allowed; BYOD is strictly prohibited. All corporate endpoints must be enrolled in the Bank's Mobile Device Management (MDM) / Endpoint Management platform and comply with current EDR, patch, and configuration baseline requirements. Refer to the Endpoint Security Policy for detailed technical standards.
+7.3.  Automated Session Locks
+Standard systems: 15 minutes inactivity.
+High-risk systems: 5 minutes inactivity.
+Re-authentication required to unlock.
+8.  In-Scope Asset Categorization
+Access controls apply to all components within the Bank's infrastructure ecosystem, categorized as follows:
+Organizational Networks: Internal LANs, segmented production VLANs, and external DMZs.
+Applications & Banking Platforms: Core banking systems, financial processing nodes, API gateways.
+Operating Systems (OS): Server environments (Linux, Windows Server) and end-user endpoints.
+Data Stores & CDE: Relational databases, unstructured storage, and credit card data segments.
+Cloud Service Providers (CSP): Cloud infrastructure consoles, orchestrators, and subscription-level identity providers. Cloud environments must enforce centralized Federated Identity Management, Privileged Identity Management (PIM), Conditional Access Policies, and Continuous Access Evaluation (CAE).
+Key Management Systems (KMS): Hardware Security Modules (HSMs), tokenization tables, encryption keys.
+Network Security Devices: Physical and virtual Firewalls, Routers, and Network Security Groups (NSGs).
+Logging Infrastructures: Log data, audit trails, and SIEM repositories.
+9.  Logging, Monitoring, and SIEM Integration
+The Bank mandates the continuous logging, centralization, and auditing of all identity and access management operations across the ecosystem. Audit log records must capture:
+Successful user and system logins.
+Failed login attempts and authentication anomalies.
+Account creation, onboarding, and configuration actions.
+Account deletion, deprovisioning, and termination events.
+Password changes, resets, and self-service credential modifications.
+MFA enrollment, synchronization, validation, and step-up authentication events.
+Privilege changes, role reassignments, and group membership updates.
+Administrative commands and superuser transactions within production assets.
+Access control policy modifications and changes to the Access Control Matrix.
+All security log repositories must be protected against unauthorized modification using WORM configurations, digital signatures, and central aggregation.
+The enterprise SIEM platform must perform real-time correlation, automatically generating high-priority alerts upon detecting anomalous behaviors or unauthorized privilege elevations.
+10.  Responsibilities
+11.  Policy Exceptions
+Any deviation from the controls in this policy must follow the formal Exception Management Process.
+Exceptions must be formally documented with a justified risk assessment, approved by the Chief Information Security Officer (CISO), and tracked with a defined expiration date not exceeding one year.
+12.  Compliance and Monitoring
+The Cyber Security Compliance team shall continuously verify alignment through automated technical audits, configuration reviews, and access log inspections.
+Non-compliance will be reported directly to senior risk committees and must be remediated immediately.
+13.  Enforcement & Policy Violations
+Any employee found to have violated this policy (e.g., credential sharing, bypassing MFA, unauthorized remote connections) will be subject to disciplinary action, up to and including immediate termination of employment.
+Incidents related to access violations will be handled according to the Bank's Security Incident Management Process.
+14.  Policy Review
+This policy shall be formally reviewed at minimum annually.
+Ad-hoc reviews must be executed immediately whenever significant changes occur across regulatory frameworks, organizational structures, technology stacks, or the threat landscape.
+All modifications must follow the Bank's formal document management and executive approval process prior to distribution.
+15.  Related Documents
+Identity and Access Management (IAM) Standard Operating Procedure
+Privileged Access Management (PAM) Standard
+Password Policy & Technical Standard
+Third-Party Security Risk Management Policy
+Security Incident Management Process Document
+Information Security Policy
+Information Classification Policy
+Acceptable Use Policy
+Endpoint Security Policy
+16.  References
+ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection
+ISO/IEC 27002:2022 - Information security controls guidance
+PCI Security Standards Council - PCI DSS Version 4.0
+Central Bank of Egypt (CBE) Cybersecurity Framework
+Central Bank of Egypt (CBE) Information Security Regulations for Banks
+NIST SP 800-63B - Digital Identity Guidelines: Authentication and Lifecycle Management
+The Bank Password Standard
+The Bank Identity and Access Management (IAM) Standard
+17.  Compliance Mapping Table

@@ -1,10 +1,32 @@
 import { Router, type IRouter } from "express";
-import { Risk, insertRiskSchema, updateRiskSchema } from "@workspace/db";
+import {
+  Risk,
+  insertRiskSchema,
+  updateRiskSchema,
+  calcRiskScore,
+  scoreToLevel,
+  calcResidualScore,
+  ragStatus,
+} from "@workspace/db";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router: IRouter = Router();
+
+function computeScores(body: any) {
+  const riskScore = calcRiskScore(body);
+  const inherentLevel = scoreToLevel(riskScore);
+  const residualScore = calcResidualScore(riskScore, body.controlStatus);
+  const overallRisk = scoreToLevel(residualScore);
+  return {
+    overallScore: riskScore,
+    riskScore,
+    inherentLevel,
+    residualScore,
+    overallRisk,
+  };
+}
 
 router.get("/risks", async (_req, res) => {
   try {
@@ -22,7 +44,8 @@ router.post("/risks", async (req, res) => {
     return;
   }
   try {
-    const risk = await Risk.create(parsed.data);
+    const data = { ...parsed.data, ...computeScores(parsed.data) };
+    const risk = await Risk.create(data);
     res.status(201).json({ risk });
   } catch (err: any) {
     if (err.code === 11000) {
@@ -35,13 +58,9 @@ router.post("/risks", async (req, res) => {
 
 router.patch("/risks/:id", async (req, res) => {
   const id = req.params.id;
-  const parsed = updateRiskSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: "Invalid input", details: parsed.error.issues });
-    return;
-  }
   try {
-    const risk = await Risk.findByIdAndUpdate(id, parsed.data, { new: true }).lean();
+    const update = { ...req.body, ...computeScores(req.body) };
+    const risk = await Risk.findByIdAndUpdate(id, update, { new: true });
     if (!risk) {
       res.status(404).json({ error: "Risk not found" });
       return;
@@ -55,7 +74,7 @@ router.patch("/risks/:id", async (req, res) => {
 router.delete("/risks/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const risk = await Risk.findByIdAndDelete(id).lean();
+    const risk = await Risk.findByIdAndDelete(id);
     if (!risk) {
       res.status(404).json({ error: "Risk not found" });
       return;

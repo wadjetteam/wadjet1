@@ -1,45 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { downloadBaselPDF, downloadBaselCSV } from '../lib/downloadUtils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar, LineChart, Line, Legend } from 'recharts'
 import { TrendingUp, TrendingDown, AlertTriangle, Shield, BarChart2, Activity, Info, ChevronRight, Download } from 'lucide-react'
-
-const capitalRatios = [
-  { name: 'CET1 Ratio', value: 13.2, min: 7.0, buffer: 2.5, label: 'Common Equity Tier 1', color: '#d4af37', status: 'strong' },
-  { name: 'Tier 1 Ratio', value: 14.8, min: 8.5, buffer: 2.5, label: 'Tier 1 Capital', color: '#c9a82e', status: 'strong' },
-  { name: 'Total Capital', value: 16.1, min: 10.5, buffer: 2.5, label: 'Total Capital Ratio', color: '#b8860b', status: 'adequate' },
-  { name: 'Leverage Ratio', value: 5.4, min: 3.0, buffer: 0, label: 'Basel III Leverage', color: '#2d7d46', status: 'strong' },
-]
-
-const rwaTrend = [
-  { q: 'Q1 25', credit: 42.1, market: 8.3, operational: 12.4 },
-  { q: 'Q2 25', credit: 43.5, market: 9.1, operational: 12.8 },
-  { q: 'Q3 25', credit: 44.2, market: 8.7, operational: 13.1 },
-  { q: 'Q4 25', credit: 45.8, market: 9.4, operational: 13.5 },
-  { q: 'Q1 26', credit: 46.1, market: 10.2, operational: 13.9 },
-  { q: 'Q2 26', credit: 47.3, market: 9.8, operational: 14.2 },
-]
-
-const lcrnsfr = [
-  { name: 'LCR', value: 138, min: 100, fill: '#d4af37' },
-  { name: 'NSFR', value: 112, min: 100, fill: '#c9a82e' },
-]
-
-const pillar2Items = [
-  { id: 'P2-IRRBB', name: 'IRRBB — Interest Rate Risk', buffer: 1.2, status: 'adequate', last: '2026-03-15' },
-  { id: 'P2-CONC', name: 'Concentration Risk Buffer', buffer: 0.8, status: 'adequate', last: '2026-03-15' },
-  { id: 'P2-PENS', name: 'Pension Obligation Risk', buffer: 0.3, status: 'low', last: '2026-01-10' },
-  { id: 'P2-CSRBB', name: 'CSRBB — Credit Spread Risk', buffer: 0.5, status: 'adequate', last: '2026-02-28' },
-  { id: 'P2-MODEL', name: 'Model Risk Buffer', buffer: 0.4, status: 'review', last: '2026-04-01' },
-]
-
-const capitalTrend = [
-  { q: 'Q1 25', cet1: 12.1, tier1: 13.5, total: 15.2 },
-  { q: 'Q2 25', cet1: 12.4, tier1: 13.8, total: 15.5 },
-  { q: 'Q3 25', cet1: 12.8, tier1: 14.1, total: 15.7 },
-  { q: 'Q4 25', cet1: 12.9, tier1: 14.4, total: 15.9 },
-  { q: 'Q1 26', cet1: 13.0, tier1: 14.6, total: 16.0 },
-  { q: 'Q2 26', cet1: 13.2, tier1: 14.8, total: 16.1 },
-]
 
 const statusColors = { strong: '#2d7d46', adequate: '#d4af37', review: '#b8860b', breach: '#c41e3a', low: '#4f7da6' }
 
@@ -86,6 +48,40 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function BaselCapitalDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
+  const [capitalRatios, setCapitalRatios] = useState([])
+  const [rwaTrend, setRwaTrend] = useState([])
+  const [lcrnsfr, setLcrnsfr] = useState([])
+  const [pillar2Items, setPillar2Items] = useState([])
+  const [capitalTrend, setCapitalTrend] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/capital/ratios').then(r => r.json()),
+      fetch('/api/capital/rwa-trend').then(r => r.json()),
+      fetch('/api/capital/liquidity').then(r => r.json()),
+      fetch('/api/capital/pillar2').then(r => r.json()),
+      fetch('/api/capital/trend').then(r => r.json()),
+    ]).then(([ratios, rwa, liq, p2, trend]) => {
+      setCapitalRatios(ratios.items || [])
+      setRwaTrend(rwa.items || [])
+      setLcrnsfr(liq.items || [])
+      setPillar2Items(p2.items || [])
+      setCapitalTrend(trend.items || [])
+    }).catch(err => console.error('Failed to fetch capital data:', err))
+    .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-egyptian-green/30 border-t-egyptian-green rounded-full animate-spin" />
+          <p className="text-xs text-pharaoh-400/60">Loading capital data...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="h-full overflow-y-auto p-6 space-y-6 scrollbar-thin">

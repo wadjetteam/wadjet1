@@ -6,6 +6,14 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-risks": "tsx ./src/seed-risks.ts",
+    "backfill-risks": "tsx ./src/backfill-risks.ts",
+    "fix-risks": "tsx ./src/fix-risks.ts",
+    "check-risks": "tsx ./src/check-risks.ts",
+    "fill-risk-dates": "tsx ./src/fill-risk-dates.ts",
+    "check-excel-cols": "tsx ./src/check-excel-cols.ts",
+    "fill-budget-issues": "tsx ./src/fill-budget-issues.ts",
+    "inspect-crossmap": "tsx ./src/inspect-crossmap.ts",
+    "verify-extended-controls": "tsx ./src/verify-extended-controls.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

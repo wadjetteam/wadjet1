@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./seed/*": "./src/seed/*"
   },
   "scripts": {},
   "dependencies": {
+    "@types/pg": "^8.20.0",
+    "pg": "^8.22.0",
     "zod": "catalog:"
   },
   "devDependencies": {

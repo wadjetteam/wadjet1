@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CONTROL_STATUSES } from "../models/risk";
 
 export const insertRiskSchema = z.object({
   riskId: z.string(),
@@ -7,6 +8,7 @@ export const insertRiskSchema = z.object({
   assetSystem: z.string().default(""),
   ownerTeam: z.string().default(""),
   riskCategory: z.string().default(""),
+  operationalCategory: z.string().default(""),
   threat: z.string().default(""),
   vulnerability: z.string().default(""),
   severity: z.string().default(""),
@@ -25,14 +27,22 @@ export const insertRiskSchema = z.object({
   overallScore: z.number().int().default(0),
   riskScore: z.number().int().default(0),
   inherentLevel: z.string().default(""),
+  controlStatus: z.enum(CONTROL_STATUSES).default("None"),
   existingControls: z.string().default(""),
   residualScore: z.number().int().default(0),
   overallRisk: z.string().default(""),
+  ragStatus: z.string().default(""),
   treatment: z.string().default(""),
   status: z.string().default("Open"),
   mitigationActions: z.string().default(""),
   deadline: z.string().nullable().default(null),
   owner: z.string().default(""),
+  riskDate: z.string().default(() => new Date().toISOString().split('T')[0]),
+  riskSource: z.string().default("Internal"),
+  reviewFreq: z.string().default("Quarterly"),
+  budget: z.string().default(""),
+  issuesBlockers: z.string().default(""),
+  createdAt: z.string().default(() => new Date().toISOString()),
 });
 
 export const updateRiskSchema = insertRiskSchema.partial();

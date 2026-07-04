@@ -50,6 +50,13 @@ export default function MetricRiskMapper() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const loadMappings = async () => {
+    try {
+      const res = await fetch('/api/metric-mappings')
+      setMappings((await res.json()).items || [])
+    } catch {}
+  }
+
   const loadData = async () => {
     try {
       const [riskRes, kpiRes, kriRes] = await Promise.all([
@@ -61,10 +68,7 @@ export default function MetricRiskMapper() {
       setKpis((await kpiRes.json()).items || [])
       setKris((await kriRes.json()).items || [])
     } catch {}
-    try {
-      const localMappings = JSON.parse(localStorage.getItem('wadjet-metric-mappings') || '[]')
-      setMappings(localMappings)
-    } catch {}
+    await loadMappings()
   }
 
   useEffect(() => { loadData() }, [])
@@ -111,7 +115,12 @@ export default function MetricRiskMapper() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      localStorage.setItem('wadjet-metric-mappings', JSON.stringify(mappings))
+      const riskMappings = mappings.filter(m => m.riskId === selectedRisk)
+      await fetch('/api/metric-mappings/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ riskId: selectedRisk, mappings: riskMappings }),
+      })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch {}

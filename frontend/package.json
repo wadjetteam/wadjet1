@@ -1,0 +1,35 @@
+{
+  "name": "@workspace/wadjet-grc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.75.5",
+    "@workspace/api-client-react": "workspace:*",
+    "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^2.15.3",
+    "tailwind-merge": "^3.2.0",
+    "wouter": "^3.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.6",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "tailwindcss": "^4.1.6",
+    "typescript": "~5.9.3",
+    "vite": "^6.3.5"
+  }
+}

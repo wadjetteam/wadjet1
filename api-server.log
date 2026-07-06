@@ -1,0 +1,320 @@
+[2026-07-06 11:11:43.507 +0200] [32mINFO[39m (7936): [36mBanking data already present[39m
+[2026-07-06 11:11:43.587 +0200] [33mWARN[39m (7936): [36mCould not parse risk spreadsheet[39m
+    err: {
+      "type": "Error",
+      "message": "ENOENT: no such file or directory, open 'C:\\Users\\Admin\\Desktop\\واجيت\\attached_assets\\Risk_Assessment_v3 (1).xlsx'",
+      "stack":
+          Error: ENOENT: no such file or directory, open 'C:\Users\Admin\Desktop\واجيت\attached_assets\Risk_Assessment_v3 (1).xlsx'
+              at Object.openSync (node:fs:561:18)
+              at Object.readFileSync (node:fs:445:35)
+              at read_binary (C:\Users\Admin\Desktop\واجيت\wADJET\node_modules\.pnpm\xlsx@0.18.5\node_modules\xlsx\xlsx.js:3153:44)
+              at readSync (C:\Users\Admin\Desktop\واجيت\wADJET\node_modules\.pnpm\xlsx@0.18.5\node_modules\xlsx\xlsx.js:23698:69)
+              at Object.readFileSync (C:\Users\Admin\Desktop\واجيت\wADJET\node_modules\.pnpm\xlsx@0.18.5\node_modules\xlsx\xlsx.js:23738:9)
+              at seedRisks (C:\Users\Admin\Desktop\واجيت\wADJET\backend\src\seed.ts:28:35)
+              at async Promise.all (index 0)
+              at async main (C:\Users\Admin\Desktop\واجيت\wADJET\backend\src\index.ts:16:3)
+      "errno": -4058,
+      "code": "ENOENT",
+      "syscall": "open",
+      "path": "C:\\Users\\Admin\\Desktop\\واجيت\\attached_assets\\Risk_Assessment_v3 (1).xlsx"
+    }
+[2026-07-06 11:11:43.590 +0200] [32mINFO[39m (7936): [36mDatabase ready[39m
+[2026-07-06 11:11:43.590 +0200] [32mINFO[39m (7936): [36mStarting background schedulers (no active cron jobs)[39m
+[2026-07-06 11:11:43.592 +0200] [32mINFO[39m (7936): [36mServer listening[39m
+    [35mport[39m: 5000
+[2026-07-06 11:11:51.290 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8655",
+        "host": "localhost:5000",
+        "connection": "Keep-Alive"
+      },
+      "remoteAddress": "::1",
+      "remotePort": 57185
+    }
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "22",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 6
+[2026-07-06 11:13:46.490 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 2,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8655",
+        "host": "localhost:5000",
+        "connection": "Keep-Alive"
+      },
+      "remoteAddress": "::1",
+      "remotePort": 64149
+    }
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "22",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:17:28.864 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 3,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8"
+      },
+      "remoteAddress": "::1",
+      "remotePort": 49323
+    }
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "22",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 2
+[2026-07-06 11:17:28.865 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 4,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8"
+      },
+      "remoteAddress": "::1",
+      "remotePort": 49324
+    }
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "22",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:18:28.861 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 5,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 58438
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:18:28.862 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 6,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 58439
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 0
+[2026-07-06 11:19:28.855 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 7,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 60469
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:19:28.856 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 8,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 60470
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:20:28.860 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 9,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 60790
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1
+[2026-07-06 11:20:28.862 +0200] [32mINFO[39m (7936): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 10,
+      "method": "GET",
+      "url": "/api/risks",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "localhost:5000",
+        "connection": "close",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "accept": "*/*",
+        "referer": "http://10.2.19.4:5173/",
+        "accept-encoding": "gzip, deflate",
+        "accept-language": "en-US,en;q=0.9,ar;q=0.8",
+        "if-none-match": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      },
+      "remoteAddress": "::1",
+      "remotePort": 62106
+    }
+    [35mres[39m: {
+      "statusCode": 304,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "etag": "W/\"16-0SObmpytxPQFcGUjapt2vzEyW3A\""
+      }
+    }
+    [35mresponseTime[39m: 1

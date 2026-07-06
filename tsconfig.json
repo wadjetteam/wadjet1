@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./backend/packages/db"
+    },
+    {
+      "path": "./backend/packages/api-zod"
+    },
+    {
+      "path": "./frontend/packages/api-client-react"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "allowJs": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["src/components/ui"],
+  "references": [
+    { "path": "../frontend/packages/api-client-react" }
+  ]
+}

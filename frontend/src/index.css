@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  /* Pharaoh — gold primary palette */
+  --color-pharaoh-50: #fdf8e8;
+  --color-pharaoh-100: #f9edc5;
+  --color-pharaoh-200: #f0d888;
+  --color-pharaoh-300: #e6c44e;
+  --color-pharaoh-400: #d4a832;
+  --color-pharaoh-500: #c49420;
+  --color-pharaoh-600: #a87a18;
+  --color-pharaoh-700: #8c6210;
+  --color-pharaoh-800: #704a08;
+  --color-pharaoh-900: #060d15;
+
+  /* Nile — surface/background shades */
+  --color-nile-50: #f0f2f5;
+  --color-nile-100: #d6dce3;
+  --color-nile-200: #b0b9c7;
+  --color-nile-300: #8a96ab;
+  --color-nile-400: #64738f;
+  --color-nile-500: #4a5568;
+  --color-nile-600: #3a4354;
+  --color-nile-700: #2a3140;
+  --color-nile-800: #1a1f2c;
+  --color-nile-900: #060d15;
+
+  /* Egyptian — semantic status colors */
+  --color-egyptian-red: #dc3545;
+  --color-egyptian-green: #20c997;
+  --color-egyptian-amber: #fd7e14;
+  --color-egyptian-blue: #4a90d9;
+}
+
+/* Gold gradient used across the platform */
+.gold-gradient {
+  background: linear-gradient(135deg, rgba(212,168,50,0.20), rgba(212,168,50,0.08));
+  border: 1px solid rgba(212,168,50,0.20);
+  color: #d4a832;
+}
+
+/* Card component */
+.pharaoh-card {
+  background: rgba(10,10,10,0.85);
+  border: 1px solid rgba(212,168,50,0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+}
+
+/* Ankh divider */
+.ankh-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,168,50,0.20), transparent);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease-out forwards;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+:root {
+  --background: #f8f9fa;
+  --foreground: #1a1a2e;
+}
+
+.dark {
+  --background: #060d15;
+  --foreground: #e4e4e7;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+}

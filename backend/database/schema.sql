@@ -1,0 +1,2 @@
+-- WAJET GRC Database Schema
+-- Target: PostgreSQL 15+ / SQL Server 2022+
